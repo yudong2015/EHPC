@@ -61,7 +61,8 @@
         "memory": {{cluster.compute.memory}},
         "services": {
             "init": {
-                "cmd": "/opt/qingcloud/app-agent/bin/inithosts"
+                "cmd": "/opt/qingcloud/app-agent/bin/inithosts",
+                "order": 2
             },
             "start": {
                 "cmd": "systemctl start slurmd",
