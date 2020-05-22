@@ -20,38 +20,31 @@ CMP_RESOURCE=`tail -n 1 ${RESOURCE_INFO}`
 
 
 # generate default NodeName, eg: node[1-6,8,12-15]
-SIDS=`sort -n ${CMP_SID_INFO}`
-echo "sids: ${SIDS}"
-RANGE=""  # 1-6
-RANGE_START=0 # 1
-LAST_SID=0
+SIDS=`sort -nu ${CMP_SID_INFO} | grep -v "^$"`
+SIDS=(${SIDS//\n/})
+echo "sids: ${SIDS[@]}"
+NODE_NAME="node["  # eg: [1-6,8]
+RANGE_START=${SIDS[0]}
+LAST_SID=${RANGE_START}
 
-NAME_NO="["  # [1-6,8]
-for sid in ${SIDS}
+for sid in ${SIDS[@]}
 do
-  if [[ -n "${sid}" ]]; then
-    if [[ -n "${RANGE}" ]]; then
-      if [[ $[$sid - $LAST_SID] > 1 ]]; then
-
-        if [[ "${RANGE_START}" -ne "${LAST_SID}" ]]; then
-          RANGE="${RANGE}-${LAST_SID}"
-        fi
-        NAME_NO="${NAME_NO}${RANGE}"
-        RANGE_START=${sid}
-        RANGE=",${}"
-      fi
+  if [[ $[$sid - $LAST_SID] > 1 ]]; then
+    if [[ ${LAST_SID} -ne ${RANGE_START} ]]; then
+      NODE_NAME="${NODE_NAME}${RANGE_START}-${LAST_SID},"
     else
-      RANGE_START=${sid}
-      if [[ -n "${NAME_NO}" ]]; then
-        RANGE=",${RANGE_START}"
-      else
-        RANGE="[${RANGE_START}"
-      fi
+      NODE_NAME="${NODE_NAME}${RANGE_START},"
     fi
-    LAST_SID=${sid}
+    RANGE_START=${sid}
   fi
+  LAST_SID=${sid}
 done
-NAME_NO="${NAME_NO}]"
+
+if [[ ${LAST_SID} -ne ${RANGE_START} ]]; then
+  NODE_NAME="${NODE_NAME}${RANGE_START}-${LAST_SID}]"
+else
+  NODE_NAME="${NODE_NAME}${RANGE_START}]"
+fi
 
 
 # backup last slurm configuration
@@ -59,8 +52,9 @@ BACKUP_FILE="${BACKUP_DIR}/slurm.conf_`date -Iseconds`.bak"
 cp ${SLURM_CONF} ${BACKUP_FILE}
 
 
+# replace slurm.conf.teamplate
 sed -e "s/{{CLUSTER_NAME}}/${CLS_NAME}/g" \
     -e "s/{{CONTROLLER_RESOURCE}}/${CTL_RESOURCE}/g" \
     -e "s/{{COMPUTE_RESOURCE}}/${CMP_RESOURCE}/g" \
-    -e "s/{{DEFAULT_NODE_NAME}}/${NAME_NO}/g" \
+    -e "s/{{DEFAULT_NODE_NAME}}/${NODE_NAME}/g" \
  ${SLURM_CONF_TMP} > ${SLURM_CONF}
