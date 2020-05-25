@@ -25,7 +25,7 @@ def start():
     if res.status_code != 200:
         print "Failed to get role from metadata: {}".format(res.content)
         exit(1)
-    role = res.text()
+    role = res.text
     if role in START_CMDS.keys():
         run_shell(START_CMDS[role])
     else:
