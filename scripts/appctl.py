@@ -16,8 +16,11 @@ from slurm import generate_conf
 
 
 def init():
+    print "Generating hosts for cluster..."
     generate()
+    print "Generating hosts for slurm configurations..."
     generate_conf()
+    print "Init done."
 
 
 def start():
@@ -28,6 +31,7 @@ def start():
     role = res.text
     if role in START_CMDS.keys():
         run_shell(START_CMDS[role])
+        print "{} started.".format(role)
     else:
         print "Nothing to start for role[{}].".format(role)
 
