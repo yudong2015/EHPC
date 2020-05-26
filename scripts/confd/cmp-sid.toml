@@ -1,6 +1,6 @@
 [template]
 src = "cmp-sid.info.tmpl"
-dest = "/opt/qingcloud/cmp-sid.info"
+dest = "/opt/app/cmp-sid.info"
   keys = [
     "/hosts/",
 ]

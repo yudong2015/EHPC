@@ -2,7 +2,7 @@
 
 
 HOSTS = "/etc/hosts"
-WORK_DIR = "/opt/qingcloud"
+WORK_DIR = "/opt/app"
 EHPC_HOSTS_INFO = "{}/ehpc-hosts.info".format(WORK_DIR)
 BACKUP_DIR = "{}/backup".format(WORK_DIR)
 
