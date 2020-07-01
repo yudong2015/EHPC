@@ -134,7 +134,7 @@
                 "label": "ComputeCount",
                 "description": "Number of compute nodes for the cluster to create",
                 "type": "integer",
-                "default": 1,
+                "default": 2,
                 "min": 1,
                 "max": 99,
                 "required": "yes"
