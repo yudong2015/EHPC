@@ -3,12 +3,14 @@
 
 HOSTS = "/etc/hosts"
 WORK_DIR = "/opt/app"
+INFO_DIR = "{}/info".format(WORK_DIR)
 BACKUP_DIR = "{}/backup".format(WORK_DIR)
-HOSTS_INFO = "{}/hosts.info".format(WORK_DIR)
-HOSTNAME_INFO = "{}/hostname.info".format(WORK_DIR)
-RESOURCE_INFO = "{}/resource.info".format(WORK_DIR)
-CMP_SID_INFO = "{}/cmp-sid.info".format(WORK_DIR)
-CLS_NAME_INFO = "{}/cluster-name.info".format(WORK_DIR)
+
+HOSTS_INFO = "{}/hosts.info".format(INFO_DIR)
+RESOURCE_INFO = "{}/resource.info".format(INFO_DIR)
+CMP_SID_INFO = "{}/cmp-sid.info".format(INFO_DIR)
+ROLE_INFO = "{}/role.info".format(INFO_DIR)
+CLS_NAME_INFO = "{}/cluster-name.info".format(INFO_DIR)
 
 SLURM_CONF = "/etc/slurm/slurm.conf"
 SLURM_CONF_TMPL = "{}/slurm.conf.tmpl".format(WORK_DIR)
@@ -21,9 +23,10 @@ ACTION_START = "start"
 ACTION_STOP = "stop"
 ACTION_RESTART = "restart"
 
-START_CMDS = {
-    "controller": "systemctl start slurmctld",
-    "compute": "systemctl start slurmd"
-}
+ROLE_CONTROLLER = "controller"
+ROLE_COMPUTE = "compute"
 
-ROLE_URL = "http://metadata/self/host/role"
+START_CMDS = {
+    ROLE_CONTROLLER: "systemctl start slurmctld",
+    ROLE_COMPUTE: "systemctl start slurmd"
+}
