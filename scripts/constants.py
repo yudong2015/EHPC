@@ -3,17 +3,17 @@
 
 HOSTS = "/etc/hosts"
 WORK_DIR = "/opt/app"
-INFO_DIR = "{}/info".format(WORK_DIR)
+APP_CONF_DIR = "{}/conf".format(WORK_DIR)
 BACKUP_DIR = "{}/backup".format(WORK_DIR)
 
-HOSTS_INFO = "{}/hosts.info".format(INFO_DIR)
-RESOURCE_INFO = "{}/resource.info".format(INFO_DIR)
-CMP_SID_INFO = "{}/cmp-sid.info".format(INFO_DIR)
-ROLE_INFO = "{}/role.info".format(INFO_DIR)
-CLS_NAME_INFO = "{}/cluster-name.info".format(INFO_DIR)
+HOSTS_INFO = "{}/hosts.info".format(APP_CONF_DIR)
+RESOURCE_INFO = "{}/resource.info".format(APP_CONF_DIR)
+CMP_SID_INFO = "{}/cmp-sid.info".format(APP_CONF_DIR)
+ROLE_INFO = "{}/role.info".format(APP_CONF_DIR)
+CLS_NAME_INFO = "{}/cluster-name.info".format(APP_CONF_DIR)
 
 SLURM_CONF = "/etc/slurm/slurm.conf"
-SLURM_CONF_TMPL = "{}/slurm.conf.tmpl".format(WORK_DIR)
+SLURM_CONF_TMPL = "{}/tmpl/slurm.conf.tmpl".format(WORK_DIR)
 
 BACKUP_HOSTS_CMD = "cp {} {}/hosts_{}.bak".format(HOSTS, BACKUP_DIR, "{}")
 BACKUP_SLURM_CONF_CMD = "cp {} {}/slurm.conf_{}.bak".format(SLURM_CONF, BACKUP_DIR, "{}")
