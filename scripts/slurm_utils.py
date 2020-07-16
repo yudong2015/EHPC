@@ -10,6 +10,7 @@ from constants import (
     SLURM_CONF,
     SLURM_CONF_TMPL,
 )
+import os
 
 
 def generate_conf():
@@ -54,7 +55,8 @@ def generate_conf():
         node_name = "{}{}-{}]".format(node_name, start_sid, last_sid)
 
     # backup last slurm configuration
-    backup(BACKUP_SLURM_CONF_CMD)
+    if os.path.exists(SLURM_CONF):
+        backup(BACKUP_SLURM_CONF_CMD)
 
     # replace slurm.conf.template
     tmp_file = "{}/slurm.conf.tmp".format(WORK_DIR)
