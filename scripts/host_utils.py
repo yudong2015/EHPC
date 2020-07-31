@@ -21,8 +21,8 @@ def generate_hosts():
                 break
             line = old.readline()
 
-    tmp_host = "{}/hosts".format(WORK_DIR)
-    with open(tmp_host, "w") as hosts:
+    tmp_hosts = "{}/hosts".format(WORK_DIR)
+    with open(tmp_hosts, "w") as hosts:
         for line in ori_hosts:
             hosts.write(line)
         with open(HOSTS_INFO, "r") as ehpc_hosts:
