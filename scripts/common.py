@@ -30,9 +30,9 @@ def get_role():
 
 def get_hostname():
     role = get_role()
-    if role is ROLE_COMPUTE:
+    if role == ROLE_COMPUTE:
         with open(CMP_SID_INFO, "r") as info:
             sid = info.read().strip()
-        return "{}{}".format(role, sid)
+        return "{}{}".format("node", sid)
     else:
         return role
