@@ -3,6 +3,8 @@
 import subprocess
 from constants import *
 from datetime import datetime
+from yaml import load, Loader
+import logging
 
 
 def backup(cmd):
@@ -36,3 +38,37 @@ def get_hostname():
         return "{}{}".format(COMPUTE_HOSTNAME_PREFIX, sid)
     else:
         return role
+
+
+def yaml_load(stream):
+    ''' load from yaml stream and create a new python object
+
+    @return object or None if failed
+    '''
+    try:
+        obj = load(stream, Loader=Loader)
+    except Exception, e:
+        obj = None
+        print("load yaml failed: ")
+        print e
+    return obj
+
+
+# if success, the type of res must be dict
+def response(success, res=None):
+    if success:
+        if not res:
+            res = {}
+        res["ret_code"] = 0
+        return res
+    else:
+        if not res:
+            res = "internal error"
+        return {"ret_code": 1, "message": res}
+
+
+logging.basicConfig(
+    format='[%(asctime)s] - %(levelname)s: %(message)s [%(pathname)s:%(lineno)d]',
+    level=logging.INFO)
+
+logger = logging.getLogger(__name__)

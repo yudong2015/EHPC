@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 
+# appctl constants
 HOSTS = "/etc/hosts"
 WORK_DIR = "/opt/app"
 APP_CONF_DIR = "{}/conf".format(WORK_DIR)
@@ -22,6 +23,7 @@ ACTION_INIT = "init"
 ACTION_START = "start"
 ACTION_STOP = "stop"
 ACTION_RESTART = "restart"
+ACTION_RUN_COMMAND = "runCommand"
 
 ROLE_CONTROLLER = "controller"
 ROLE_COMPUTE = "compute"
@@ -32,3 +34,11 @@ START_CMDS = {
     ROLE_CONTROLLER: "systemctl start slurmctld",
     ROLE_COMPUTE: "systemctl start slurmd"
 }
+
+# userctl constants
+ACTION_LIST = "list"
+ACTION_ADD = "add"
+ACTION_DELETE = "delete"
+
+HOME_DIR_FMT = "/home/{}/{}"  # /home/usr-xxx/user_name
+LDAP_NOT_EXIST_ERROR = 32
