@@ -10,12 +10,13 @@
         "container": {
             "type": "kvm",
             "zone": "sh1",
-            "image": "img-m0he80c7"
+            "image": "img-tv3u1h35"
         },
         "instance_class": {{cluster.login.instance_class}},
         "cpu": {{cluster.login.cpu}},
         "memory": {{cluster.login.memory}},
         "count": {{cluster.login.count}},
+        "user_access": true,
         "services": {
             "init": {
                 "cmd": "appctl init"
@@ -26,7 +27,7 @@
         "container": {
             "type": "kvm",
             "zone": "sh1",
-            "image": "img-m0he80c7"
+            "image": "img-tv3u1h35"
         },
         "instance_class": {{cluster.controller.instance_class}},
         "count": {{cluster.controller.count}},
@@ -47,6 +48,32 @@
             "restart": {
                "cmd": "appctl restart",
                "order": 1
+            },
+            "add_user": {
+                "type": "custom",
+                "cmd": "userctl add",
+                "timeout": 180,
+                "service_params": {
+                    "user_name": {{service_params.controller.user_name}},
+                    "password": {{service_params.controller.password}}
+                }
+            },
+            "delete_user": {
+                "type": "custom",
+                "cmd": "userctl delete",
+                "timeout": 180,
+                "service_params": {
+                    "user_name": {{service_params.controller.user_name}}
+                }
+            },
+            "reset_password": {
+                "type": "custom",
+                "cmd": "userctl passwd",
+                "timeout": 180,
+                "service_params": {
+                    "user_name": {{service_params.controller.user_name}},
+                    "password": {{service_params.controller.password}}
+                }
             }
         }
     },{
@@ -54,7 +81,7 @@
         "container": {
             "type": "kvm",
             "zone": "sh1",
-            "image": "img-m0he80c7"
+            "image": "img-tv3u1h35"
         },
         "instance_class": {{cluster.compute.instance_class}},
         "count": {{cluster.compute.count}},
@@ -74,7 +101,7 @@
                 "order": 2
             },
             "stop": {
-                "cmd": "appctl start",
+                "cmd": "appctl stop",
                 "order": 1
             },
             "restart": {
@@ -85,6 +112,17 @@
         "vertical_scaling_policy": "parallel"
     }],
     "env": {
-        "replica.lag.time.max.ms": {{env.replica.lag.time.max.ms}}
+        "admin_user": {{env.admin.user}},
+        "password": {{env.admin.password}},
+        "admin_user_id": {{env.admin.user_id}},
+        "group_id": {{env.admin.group_id}},
+        "nas_path": {{env.nas_path}},
+    },
+    "display_tabs" : {
+        "cluster_user" : {
+            "cmd" : "userctl list",
+            "roles_to_execute_on": "controller",
+            "timeout": 30
+        }
     }
 }

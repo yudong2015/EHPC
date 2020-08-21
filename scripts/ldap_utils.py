@@ -3,9 +3,13 @@
 
 from common import (
     logger,
-    yaml_load,
+    LDAP_ADDRESS,
+    LDAP_ROOT_DN,
+    LDAP_ADMIN,
+    LDAP_ADMIN_PASSWORD,
 )
 import ldap
+import random
 from ldap import modlist
 
 import sys
@@ -17,23 +21,22 @@ USER_SEARCH_ATTRS = ["cn", "uidNumber", "gidNumber"]
 
 
 class LdapClient(object):
-    def __init__(self, ldap_address, parent_dn, admin, passwd):
+    def __init__(self, ldap_address, root_dn, admin, passwd):
         self.address = ldap_address
-        self.parent_dn = parent_dn
-        self.bind_dn = "cn={},{}".format(admin, parent_dn)
+        self.bind_dn = "cn={},{}".format(admin, root_dn)
         self.passwd = passwd
 
         self.user_ou = "People"
+        self.user_base_dn = "ou={},{}".format(self.user_ou, root_dn)
         self.user_object_class = [
             "posixAccount",
             "inetOrgPerson",
             "shadowAccount"
         ]
-        self.user_base_dn = "ou={},{}".format(self.user_ou, parent_dn)
 
         self.group_ou = "Group"
+        self.group_base_dn = "ou={},{}".format(self.group_ou, root_dn)
         self.group_object_class = ["posixGroup"]
-        self.group_base_dn = "ou={},{}".format(self.group_ou, parent_dn)
 
         self.ldap_object = None
 
@@ -49,7 +52,15 @@ class LdapClient(object):
 
     def close(self):
         if self.ldap_object is not None:
+            logger.info("disconnect ldap server..")
             self.ldap_object.unbind_s()
+            logger.info("disconnected.")
+
+    def user_dn(self, user_name):
+        return "cn={},{}".format(user_name, self.user_base_dn)
+
+    def group_dn(self, group_name):
+        return "cn={},{}".format(group_name, self.group_base_dn)
 
     def create_user(self, user_name, uid, password, home_dir, gid):
         logger.info("create user, home: [%s], name: [%s], uid: [%s], "
@@ -67,12 +78,9 @@ class LdapClient(object):
             loginShell="/bin/bash",
             objectClass=self.user_object_class  # ['posixAccount','inetOrgPerson'] #cn、sn必填
         )
-        dn = "cn={cn},ou={ou},{parent_dn}".format(
-            cn=user_name, ou=self.user_ou, parent_dn=self.parent_dn)
         ldif = modlist.addModlist(attrs)
-        res = self.ldap_object.add_s(dn, ldif)
+        res = self.ldap_object.add_s(self.user_dn(user_name), ldif)
         logger.info("create user response: [%s]", res)
-        logger.info("create user successfully.")
 
         #创建用户实体先默认不设置密码，直接在创建用户实体设置密码属性，初始密码是未加密形式保存？
         #创建用户实体，设置成密码模式保存
@@ -80,20 +88,17 @@ class LdapClient(object):
         #res = modify_password(dn, None, password)
         #print("modify_password done.")
 
-    def create_group(self, g_name, gid):
-        logger.info("create group, name: [%s], gid: [%s]", g_name, gid)
+    def create_group(self, g_name, g_id):
+        logger.info("create group, name: [%s], g_id: [%s]", g_name, g_id)
         attrs = dict(
             cn=g_name,  # common name
             memberUid=g_name,
-            gidNumber=gid,
+            gidNumber=g_id,
             objectClass=self.group_object_class,
         )
-        dn = "cn={cn},ou={ou},{parent_dn}".format(
-            cn=g_name, ou=self.group_ou, parent_dn=self.parent_dn)
         ldif = modlist.addModlist(attrs)
-        res = self.ldap_object.add_s(dn, ldif)
+        res = self.ldap_object.add_s(self.group_dn(g_name), ldif)
         logger.info("Create group response: [%s]", res)
-        logger.info("create group successfully.")
 
     # ldap search response with default attributes: [
     #     ('ou=People,dc=ehpccloud,dc=com', {'objectClass': ['organizationalUnit'], 'ou': ['People']}),
@@ -119,15 +124,14 @@ class LdapClient(object):
         return ret
 
     def user_exist(self, user_name, user_id=None):
-        logger.info("Check if user name exist..")
+        logger.info("Check if user[%s %s] exist..", user_name, user_id)
         search_filter = "cn={}".format(user_name)
         ret = self.ldap_object.search_s(
             self.user_base_dn, ldap.SCOPE_SUBTREE,
             search_filter, USER_SEARCH_ATTRS)
         logger.info("Search user name response: [%s]", ret)
-        for item in ret:
-            if item[1].get("cn", None):
-                return True
+        if ret:
+            return True
 
         if user_id:
             logger.info("Check if user id exist..")
@@ -136,36 +140,21 @@ class LdapClient(object):
                 self.user_base_dn, ldap.SCOPE_SUBTREE,
                 search_filter, USER_SEARCH_ATTRS)
             logger.info("Search user id response: [%s]", ret)
-            for item in ret:
-                if item[1].get("uidNumber", None):
-                    return True
+            if ret:
+                return True
         return False
 
     # search group response: [
     #   ('cn=tuser4,ou=Group,dc=ehpccloud,dc=com', {'gidNumber': ['1000'], 'cn': ['tuser4']})
     # ]
-    def group_exist(self, g_id, g_name=""):
-        logger.info("Check if group id exist..")
+    def group_exist(self, g_id):
+        logger.info("Check if group[%s] exist..", g_id)
         search_filter = "gidNumber={}".format(g_id)
         ret = self.ldap_object.search_s(
             self.group_base_dn, ldap.SCOPE_SUBTREE,
             search_filter, GROUP_SEARCH_ATTRS)
         logger.info("Search group id response: [%s]", ret)
-        for item in ret:
-            if item[1].get("gidNumber", None):
-                return True
-
-        if g_name:
-            logger.info("Check if group name exist..")
-            search_filter = "cn={}".format(g_name)
-            ret = self.ldap_object.search_s(
-                self.group_base_dn, ldap.SCOPE_SUBTREE,
-                search_filter, GROUP_SEARCH_ATTRS)
-            logger.info("Search group name response: [%s]", ret)
-            for item in ret:
-                if item[1].get("cn", None):
-                    return True
-        return False
+        return True if ret else False
 
     def generate_uid_number(self):
         # generate uid not exist
@@ -176,22 +165,23 @@ class LdapClient(object):
                 num = int(num_str)
                 if num > max_uid:
                     max_uid = num
-        return max_uid + 1
+        return str(max_uid + random.randint(1, 100))
 
     def delete_user(self, user_name):
         logger.info("Delete user[%s]..", user_name)
-        dn = "cn={cn},ou={ou},{parent_dn}".format(
-            cn=user_name, ou=self.user_ou, parent_dn=self.parent_dn)
+        dn = "cn={cn},{user_base_dn}".format(
+            cn=user_name, ou=self.user_ou, user_base_dn=self.user_base_dn)
         res = self.ldap_object.delete_s(dn)
         logger.info("delete user response: [%s]", res)
-        logger.info("deleted user successfully.")
+
+    def reset_password(self, user_name, old_password, new_password):
+        logger.info("Reset password for user[%s]..", user_name)
+        res = self.ldap_object.passwd_s(self.user_dn(user_name), old_password, new_password)
+        logger.info("Reset response: [%s]", res)
 
 
 def new_ldap_client():
-    with open("ldap_conf.yaml", "r") as fs:
-        conf = yaml_load(fs)
-        if not conf:
-            logger.error("The ldap configration is: [%s]", conf)
-            return None
-    return LdapClient(conf["address"], conf["parentDn"],
-                      conf["admin"], conf["password"])
+    c = LdapClient(
+        LDAP_ADDRESS, LDAP_ROOT_DN, LDAP_ADMIN, LDAP_ADMIN_PASSWORD)
+    c.connect()
+    return c

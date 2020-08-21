@@ -1,0 +1,6 @@
+[template]
+src = "envs.info.tmpl"
+dest = "/opt/app/conf/envs.json"
+  keys = [
+    "/env/",
+]

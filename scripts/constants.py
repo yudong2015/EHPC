@@ -7,11 +7,12 @@ WORK_DIR = "/opt/app"
 APP_CONF_DIR = "{}/conf".format(WORK_DIR)
 BACKUP_DIR = "{}/backup".format(WORK_DIR)
 
-HOSTS_INFO = "{}/hosts.info".format(APP_CONF_DIR)
-RESOURCE_INFO = "{}/resource.info".format(APP_CONF_DIR)
-CMP_SID_INFO = "{}/compute-sid.info".format(APP_CONF_DIR)
-ROLE_INFO = "{}/role.info".format(APP_CONF_DIR)
-CLS_NAME_INFO = "{}/cluster-name.info".format(APP_CONF_DIR)
+HOSTS_INFO_FILE = "{}/hosts.info".format(APP_CONF_DIR)
+RESOURCE_INFO_FILE = "{}/resource.info".format(APP_CONF_DIR)
+CMP_SID_INFO_FILE = "{}/compute-sid.info".format(APP_CONF_DIR)
+ROLE_INFO_FILE = "{}/role.info".format(APP_CONF_DIR)
+CLS_NAME_INFO_FILE = "{}/cluster-name.info".format(APP_CONF_DIR)
+ENV_INFO_FILE = "{}/envs.json".format(APP_CONF_DIR)
 
 SLURM_CONF = "/etc/slurm/slurm.conf"
 SLURM_CONF_TMPL = "{}/tmpl/slurm.conf.tmpl".format(WORK_DIR)
@@ -19,26 +20,29 @@ SLURM_CONF_TMPL = "{}/tmpl/slurm.conf.tmpl".format(WORK_DIR)
 BACKUP_HOSTS_CMD = "cp {} {}/hosts_{}.bak".format(HOSTS, BACKUP_DIR, "{}")
 BACKUP_SLURM_CONF_CMD = "cp {} {}/slurm.conf_{}.bak".format(SLURM_CONF, BACKUP_DIR, "{}")
 
-ACTION_INIT = "init"
-ACTION_START = "start"
-ACTION_STOP = "stop"
-ACTION_RESTART = "restart"
-ACTION_RUN_COMMAND = "runCommand"
+ACTION_APP_INIT = "init"
+ACTION_APP_START = "start"
+ACTION_APP_STOP = "stop"
+ACTION_APP_RESTART = "restart"
 
 ROLE_CONTROLLER = "controller"
 ROLE_COMPUTE = "compute"
+ROLE_LOGIN = "login"
 
 COMPUTE_HOSTNAME_PREFIX = "node"
 
-START_CMDS = {
-    ROLE_CONTROLLER: "systemctl start slurmctld",
-    ROLE_COMPUTE: "systemctl start slurmd"
-}
-
 # userctl constants
-ACTION_LIST = "list"
-ACTION_ADD = "add"
-ACTION_DELETE = "delete"
+ACTION_USER_LIST = "list"
+ACTION_USER_ADD = "add"
+ACTION_USER_ADD_ADMIN = "add_admin"
+ACTION_USER_DELETE = "delete"
+ACTION_RESET_PASSWORD = "passwd"
 
-HOME_DIR_FMT = "/home/{}/{}"  # /home/usr-xxx/user_name
+ADMIN_HOME_FMT = "/home/{}"  # /home/nas_path
+HOME_FMT = "/home/{}/home/{}"  # /home/nas_path/home/user_name
 LDAP_NOT_EXIST_ERROR = 32
+
+LDAP_ADDRESS = "ldap://controller:389"
+LDAP_ROOT_DN = "dc=ehpccloud,dc=com"
+LDAP_ADMIN = "ldapadm"
+LDAP_ADMIN_PASSWORD = "Zhu1241jie"

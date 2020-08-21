@@ -1,10 +1,24 @@
 #!/usr/bin/env python
 
 import subprocess
-from constants import *
+from constants import (
+    ROLE_INFO_FILE,
+    CMP_SID_INFO_FILE,
+    ENV_INFO_FILE,
+    BACKUP_DIR,
+    COMPUTE_HOSTNAME_PREFIX,
+    ROLE_COMPUTE,
+)
 from datetime import datetime
-from yaml import load, Loader
 import logging
+import traceback
+import simplejson as jsmod
+
+logging.basicConfig(
+    format='[%(asctime)s] - %(levelname)s: %(message)s [%(pathname)s:%(lineno)d]',
+    level=logging.DEBUG)
+
+logger = logging.getLogger(__name__)
 
 
 def backup(cmd):
@@ -15,43 +29,48 @@ def backup(cmd):
 
 
 def run_shell(cmd):
-    print "Run cmd[{}]...".format(cmd)
+    logger.info("Run cmd[%s]...", cmd)
     subprocess.check_call(cmd.split(" "))
 
 
 def get_role():
-    with open(ROLE_INFO, 'r') as info:
+    with open(ROLE_INFO_FILE, 'r') as info:
         role = info.read().strip()
     if role:
-        print "The role is: {}".format(role)
+        logger.info("The role is: [%s].", role)
         return role
     else:
-        print "The role is none!"
+        logger.error("The role is none!")
         exit(1)
 
 
 def get_hostname():
     role = get_role()
     if role == ROLE_COMPUTE:
-        with open(CMP_SID_INFO, "r") as info:
+        with open(CMP_SID_INFO_FILE, "r") as info:
             sid = info.read().strip()
         return "{}{}".format(COMPUTE_HOSTNAME_PREFIX, sid)
     else:
         return role
 
 
-def yaml_load(stream):
-    ''' load from yaml stream and create a new python object
-
-    @return object or None if failed
-    '''
+def json_loads(json_str):
     try:
-        obj = load(stream, Loader=Loader)
-    except Exception, e:
-        obj = None
-        print("load yaml failed: ")
-        print e
-    return obj
+        return jsmod.loads(json_str, encoding='utf-8')
+    except Exception:
+        logger.error("loads json str[%s] error: %s",
+                     json_str, traceback.format_exc())
+        return None
+
+
+def get_admin_info():
+    try:
+        with open(ENV_INFO_FILE, "r") as e:
+            info = jsmod.load(e)
+        return info
+    except Exception:
+        logger.error("Failed to load env file: [%s]", traceback.format_exc())
+        return None
 
 
 # if success, the type of res must be dict
@@ -65,10 +84,3 @@ def response(success, res=None):
         if not res:
             res = "internal error"
         return {"ret_code": 1, "message": res}
-
-
-logging.basicConfig(
-    format='[%(asctime)s] - %(levelname)s: %(message)s [%(pathname)s:%(lineno)d]',
-    level=logging.INFO)
-
-logger = logging.getLogger(__name__)

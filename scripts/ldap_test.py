@@ -3,12 +3,15 @@
 import sys
 import getopt
 from common import (
-    yaml_load,
     logger,
+    LDAP_ADDRESS,
+    LDAP_ROOT_DN,
+    LDAP_ADMIN,
+    LDAP_ADMIN_PASSWORD,
 )
-
 import ldap
 from ldap import modlist, LDAPError
+
 GROUP_SEARCH_ATTRS = ["gidNumber", "cn"]
 USER_SEARCH_ATTRS = ["cn", "uidNumber", "gidNumber"]
 
@@ -246,40 +249,36 @@ if __name__ == "__main__":
     logger.info("")
 
     if user_id and name and uid and gid and password:
-        with open("ldap_conf.yaml", "r") as fs:
-            conf = yaml_load(fs)
-            if not conf:
-                exit(1)
-
-        ldap_linux = LdapClient(conf["address"], conf["parentDn"],
-                                conf["admin"], conf["password"])
+        client = None
         try:
+            client = LdapClient(LDAP_ADDRESS, LDAP_ROOT_DN,
+                                LDAP_ADMIN, LDAP_ADMIN_PASSWORD)
+            client.connect()
 
-            ldap_linux.connect()
-
-            # ret = ldap_linux.create_user(name, uid, password, "/home/usr-xxxxx/{}".format(name), gid)
+            # ret = client.create_user(name, uid, password, "/home/usr-xxxxx/{}".format(name), gid)
             # if ret["ret_code"] == RET_SUCCESS:
             #     logger.info("Create user successfully.")
             # else:
             #     raise Exception("Create user Failed!!!")
             #
-            # ret = ldap_linux.create_group(name, gid)
+            # ret = client.create_group(name, gid)
             # if ret["ret_code"] == RET_SUCCESS:
             #     logger.info("Create successfully.")
             # else:
             #     raise Exception("Create Failed!!!")
 
-            ldap_linux.list_user()
-            ldap_linux.delete_user(name)
-            ldap_linux.list_user()
+            client.list_user()
+            client.delete_user(name)
+            client.list_user()
         except LDAPError as e:
             logger.error("ldap error: [%s]", e.message)
             logger.error("ldap error type: [%s]", type(e.message))
         except Exception as e:
             logger.error("test failed: [%s]", e.message)
         finally:
-            ldap_linux.close()
+            client.close()
     else:
         logger.info("Param is not complete!")
         help()
         sys.exit(1)
+

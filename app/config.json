@@ -158,20 +158,67 @@
                 "required": "yes"
             }]
         }]
-    },
-    {
-        "key": "env",
-        "description": "E-HPC service properties",
+    }, {
+        "key": "service_params",
+        "description": "Custom service configuration properties",
         "type": "array",
         "properties": [{
-            "key": "replica.lag.time.max.ms",
-            "label": "replica.lag.time.max.ms",
-            "description": "The time interval at which leaders will remove followers from isr",
-            "default": 10000,
-            "type": "integer",
-            "min": 6000,
-            "max": 99999,
-            "required": "no"
+            "key": "controller",
+            "description": "Custom service the role (controller) configuration properties",
+            "type": "array",
+            "properties": [{
+                    "key": "user_name",
+                    "label": "User Name",
+                    "description": "The name of creating user",
+                    "type": "string",
+                    "default": "",
+                    "required": "yes"
+                },{
+                    "key": "password",
+                    "label": "Password",
+                    "description": "password of creating user",
+                    "type": "password",
+                    "required": "yes"
+            }]
+        }]
+    },{
+        "key": "env",
+        "description": "E-HPC service env properties",
+        "type": "array",
+        "properties": [{
+            "key": "admin.user",
+            "label": "Admin User",
+            "description": "admin user for ehpc cluster",
+            "type": "string",
+            "default": "",
+            "required": "yes"
+        }, {
+            "key": "admin.password",
+            "label": "Admin Password",
+            "description": "password of admin user",
+            "type": "password",
+            "required": "yes"
+        }, {
+            "key": "admin.user_id",
+            "label": "Admin User_id",
+            "description": "admin user id for ehpc cluster",
+            "type": "string",
+            "default": "",
+            "required": "yes"
+        }, {
+            "key": "admin.group_id",
+            "label": "Admin Group_id",
+            "description": "group id of admin user for ehpc cluster",
+            "type": "string",
+            "default": "",
+            "required": "yes"
+        }, {
+            "key": "nas_path",
+            "label": "nas_path",
+            "description": "nas path for mounting lustre",
+            "type": "string",
+            "default": "",
+            "required": "yes"
         }]
     }]
 }
