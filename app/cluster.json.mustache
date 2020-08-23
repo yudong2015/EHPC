@@ -10,7 +10,7 @@
         "container": {
             "type": "kvm",
             "zone": "ehpc",
-            "image": "img-7ol5gk5s"
+            "image": "img-0ttjwvh5"
         },
         "net": {
             "vxnet": true,
@@ -35,7 +35,7 @@
         "container": {
             "type": "kvm",
             "zone": "ehpc",
-            "image": "img-7ol5gk5s"
+            "image": "img-0ttjwvh5"
         },
         "net": {
             "vxnet": false,
@@ -71,7 +71,7 @@
         "container": {
             "type": "kvm",
             "zone": "ehpc",
-            "image": "img-7ol5gk5s"
+            "image": "img-0ttjwvh5"
         },
         "net": {
             "vxnet": false,
@@ -104,6 +104,8 @@
         "vertical_scaling_policy": "parallel"
     }],
     "env": {
-        "replica.lag.time.max.ms": {{env.replica.lag.time.max.ms}}
+        "admin_user": {{env.replica.lag.time.max.ms}}
+        "admin_password": {{env.replica.lag.time.max.ms}}
+        "nas_path": {{env.replica.lag.time.max.ms}}
     }
 }
