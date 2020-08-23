@@ -3,9 +3,7 @@
 import sys
 import subprocess
 from constants import (
-    ROLE_INFO_FILE,
-    CMP_SID_INFO_FILE,
-    ADMIN_INFO_FILE,
+    CLUSTER_INFO_FILE,
     BACKUP_DIR,
     COMPUTE_HOSTNAME_PREFIX,
     ROLE_COMPUTE,
@@ -34,25 +32,17 @@ def run_shell(cmd):
     subprocess.check_call(cmd.split(" "))
 
 
-def get_role():
-    with open(ROLE_INFO_FILE, 'r') as info:
-        role = info.read().strip()
-    if role:
-        logger.info("The role is: [%s].", role)
-        return role
-    else:
-        logger.error("The role is none!")
-        sys.exit(1)
-
-
-def get_hostname():
-    role = get_role()
-    if role == ROLE_COMPUTE:
-        with open(CMP_SID_INFO_FILE, "r") as info:
-            sid = info.read().strip()
-        return "{}{}".format(COMPUTE_HOSTNAME_PREFIX, sid)
-    else:
-        return role
+def json_load(json_file, err_exit=False):
+    try:
+        with open(json_file, "r") as fp:
+            info = jsmod.load(fp)
+        return info
+    except Exception:
+        logger.error("Failed to load file[%s]: [%s]", json_file,
+                     traceback.format_exc())
+        if err_exit:
+            sys.exit(1)
+        return None
 
 
 def json_loads(json_str):
@@ -64,11 +54,31 @@ def json_loads(json_str):
         return None
 
 
-def get_admin_info():
-    try:
-        with open(ADMIN_INFO_FILE, "r") as e:
-            info = jsmod.load(e)
-        return info
-    except Exception:
-        logger.error("Failed to load env file: [%s]", traceback.format_exc())
-        return None
+CLUSTER_INFO = {}
+
+
+def get_cluster_info():
+    global CLUSTER_INFO
+    if not CLUSTER_INFO:
+        CLUSTER_INFO = json_load(CLUSTER_INFO_FILE, True)
+    return CLUSTER_INFO
+
+
+def get_role():
+    cluster_info = get_cluster_info()
+    role = cluster_info["role"]
+    if role:
+        logger.info("The role is: [%s].", role)
+        return role
+    else:
+        logger.error("The role is none!")
+        sys.exit(1)
+
+
+def get_hostname():
+    role = get_role()
+    if role == ROLE_COMPUTE:
+        cluster_info = get_cluster_info()
+        return "{}{}".format(COMPUTE_HOSTNAME_PREFIX, cluster_info["sid"])
+    else:
+        return role

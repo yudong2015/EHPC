@@ -7,7 +7,7 @@ import traceback
 from common import (
     logger,
     json_loads,
-    get_admin_info,
+    get_cluster_info,
 )
 from constants import (
     ACTION_USER_ADD,
@@ -51,7 +51,7 @@ def add_user(params):
                 logger.error("The user[%s] already exist.", user_name)
                 sys.exit(45)
 
-            admin_info = get_admin_info()
+            admin_info = get_cluster_info()
             gid = admin_info["group_id"]
             # gname = admin_info["user"]
             # if not ldap_client.group_exist(gid):
@@ -76,7 +76,7 @@ def add_user(params):
 
 def add_admin_user():
     ldap_client = new_ldap_client()
-    admin_info = get_admin_info()
+    admin_info = get_cluster_info()
 
     gid = admin_info["group_id"]
     if not ldap_client.group_exist(gid):
@@ -97,7 +97,7 @@ def delete_user(params):
         logger.error("required params: user_name[%s].", user_name)
         sys.exit(40)
 
-    if user_name == get_admin_info()["user"]:
+    if user_name == get_cluster_info()["user"]:
         logger.error("The admin user[%s] can not be deleted.", user_name)
         sys.exit(46)
 

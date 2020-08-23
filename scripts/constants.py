@@ -9,10 +9,7 @@ BACKUP_DIR = "{}/backup".format(WORK_DIR)
 
 HOSTS_INFO_FILE = "{}/hosts.info".format(APP_CONF_DIR)
 RESOURCE_INFO_FILE = "{}/resource.info".format(APP_CONF_DIR)
-CMP_SID_INFO_FILE = "{}/compute-sid.info".format(APP_CONF_DIR)
-ROLE_INFO_FILE = "{}/role.info".format(APP_CONF_DIR)
-CLS_NAME_INFO_FILE = "{}/cluster-name.info".format(APP_CONF_DIR)
-ADMIN_INFO_FILE = "{}/admin.json".format(APP_CONF_DIR)
+CLUSTER_INFO_FILE = "{}/cluster.info.json".format(APP_CONF_DIR)
 
 SLURM_CONF = "/etc/slurm/slurm.conf"
 SLURM_CONF_TMPL = "{}/tmpl/slurm.conf.tmpl".format(WORK_DIR)

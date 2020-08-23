@@ -1,0 +1,11 @@
+{
+    "name": "{{getv "/cluster/cluster_id"}}",
+    "sid": "{{getv "/host/sid"}}",
+    "sids": "{{range $dir := lsdir "/hosts/compute/"}}{{$sid := printf "/hosts/compute/%s/sid" $dir}}{{getv $sid}},{{end}}",
+    "role": "{{getv "/host/role"}}",
+    "user": "{{getv "/env/admin_user"}}",
+    "user_id": "{{getv "/env/admin_user_id"}}",
+    "password": "{{getv "/env/admin_password"}}",
+    "group_id": "{{getv "/env/admin_group_id"}}",
+    "nas_path": "{{getv "/env/nas_path"}}"
+}

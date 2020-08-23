@@ -68,6 +68,7 @@ def start():
     else:
         logger.error("Unsupport role[%s].", role)
         sys.exit(1)
+    logger.info("%s started.", role)
 
 
 def restart():

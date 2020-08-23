@@ -1,6 +1,0 @@
-[template]
-src = "admin.info.tmpl"
-dest = "/opt/app/conf/admin.json"
-  keys = [
-    "/env/",
-]
