@@ -10,7 +10,7 @@
         "container": {
             "type": "kvm",
             "zone": "sh1",
-            "image": "img-tv3u1h35"
+            "image": "img-7blz0kht"
         },
         "instance_class": {{cluster.login.instance_class}},
         "cpu": {{cluster.login.cpu}},
@@ -20,6 +20,10 @@
         "services": {
             "init": {
                 "cmd": "appctl init"
+            },
+            "start": {
+                "cmd": "appctl start",
+                "order": 2
             }
         }
     }, {
@@ -27,7 +31,7 @@
         "container": {
             "type": "kvm",
             "zone": "sh1",
-            "image": "img-tv3u1h35"
+            "image": "img-7blz0kht"
         },
         "instance_class": {{cluster.controller.instance_class}},
         "count": {{cluster.controller.count}},
@@ -72,7 +76,8 @@
                 "timeout": 180,
                 "service_params": {
                     "user_name": {{service_params.controller.user_name}},
-                    "password": {{service_params.controller.password}}
+                    "password": {{service_params.controller.password}},
+                    "new_password": {{service_params.controller.new_password}}
                 }
             }
         }
@@ -81,7 +86,7 @@
         "container": {
             "type": "kvm",
             "zone": "sh1",
-            "image": "img-tv3u1h35"
+            "image": "img-7blz0kht"
         },
         "instance_class": {{cluster.compute.instance_class}},
         "count": {{cluster.compute.count}},
@@ -113,16 +118,15 @@
     }],
     "env": {
         "admin_user": {{env.admin.user}},
-        "password": {{env.admin.password}},
+        "admin_password": {{env.admin.password}},
         "admin_user_id": {{env.admin.user_id}},
-        "group_id": {{env.admin.group_id}},
-        "nas_path": {{env.nas_path}},
+        "admin_group_id": {{env.admin.group_id}},
+        "nas_path": {{env.nas_path}}
     },
     "display_tabs" : {
         "cluster_user" : {
             "cmd" : "userctl list",
-            "roles_to_execute_on": "controller",
-            "timeout": 30
+            "roles_to_execute_on": ["controller"]
         }
     }
 }

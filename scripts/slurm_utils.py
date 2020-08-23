@@ -2,9 +2,9 @@
 
 from common import backup, run_shell
 from constants import (
-    CLS_NAME_INFO,
-    RESOURCE_INFO,
-    CMP_SID_INFO,
+    CLS_NAME_INFO_FILE,
+    RESOURCE_INFO_FILE,
+    CMP_SID_INFO_FILE,
     BACKUP_SLURM_CONF_CMD,
     WORK_DIR,
     SLURM_CONF,
@@ -16,12 +16,12 @@ import os
 
 def generate_conf():
     # get cluster_name
-    with open(CLS_NAME_INFO, "r") as info:
+    with open(CLS_NAME_INFO_FILE, "r") as info:
         cls_name = info.read()
 
     ctl_resource = ""  # the first line in resource.info
     cmp_resource = ""  # the last line in resource.info
-    with open(RESOURCE_INFO, "r") as info:
+    with open(RESOURCE_INFO_FILE, "r") as info:
         lines = info.readlines()
         for line in lines:
             if line:
@@ -32,7 +32,7 @@ def generate_conf():
 
     # generate default NodeName, eg: node[1-6,8,12-15]
     sids = []
-    with open(CMP_SID_INFO, "r") as info:
+    with open(CMP_SID_INFO_FILE, "r") as info:
         for line in info.readlines():
             if line:
                 sids.append(int(line))

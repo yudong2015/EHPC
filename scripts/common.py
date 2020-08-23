@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
+import sys
 import subprocess
 from constants import (
     ROLE_INFO_FILE,
     CMP_SID_INFO_FILE,
-    ENV_INFO_FILE,
+    ADMIN_INFO_FILE,
     BACKUP_DIR,
     COMPUTE_HOSTNAME_PREFIX,
     ROLE_COMPUTE,
@@ -41,7 +42,7 @@ def get_role():
         return role
     else:
         logger.error("The role is none!")
-        exit(1)
+        sys.exit(1)
 
 
 def get_hostname():
@@ -65,22 +66,9 @@ def json_loads(json_str):
 
 def get_admin_info():
     try:
-        with open(ENV_INFO_FILE, "r") as e:
+        with open(ADMIN_INFO_FILE, "r") as e:
             info = jsmod.load(e)
         return info
     except Exception:
         logger.error("Failed to load env file: [%s]", traceback.format_exc())
         return None
-
-
-# if success, the type of res must be dict
-def response(success, res=None):
-    if success:
-        if not res:
-            res = {}
-        res["ret_code"] = 0
-        return res
-    else:
-        if not res:
-            res = "internal error"
-        return {"ret_code": 1, "message": res}

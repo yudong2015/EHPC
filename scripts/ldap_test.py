@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import sys
 import getopt
-from common import (
-    logger,
+from common import logger
+from constants import (
     LDAP_ADDRESS,
     LDAP_ROOT_DN,
     LDAP_ADMIN,

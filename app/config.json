@@ -164,19 +164,25 @@
         "type": "array",
         "properties": [{
             "key": "controller",
-            "description": "Custom service the role (controller) configuration properties",
+            "description": "Custom service the role(controller) configuration properties",
             "type": "array",
             "properties": [{
                     "key": "user_name",
                     "label": "User Name",
-                    "description": "The name of creating user",
+                    "description": "The name of the user",
                     "type": "string",
                     "default": "",
                     "required": "yes"
                 },{
                     "key": "password",
                     "label": "Password",
-                    "description": "password of creating user",
+                    "description": "password of the user",
+                    "type": "password",
+                    "required": "yes"
+                },{
+                    "key": "new_password",
+                    "label": "New Password",
+                    "description": "new password of the user to reset",
                     "type": "password",
                     "required": "yes"
             }]

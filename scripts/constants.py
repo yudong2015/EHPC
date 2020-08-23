@@ -12,7 +12,7 @@ RESOURCE_INFO_FILE = "{}/resource.info".format(APP_CONF_DIR)
 CMP_SID_INFO_FILE = "{}/compute-sid.info".format(APP_CONF_DIR)
 ROLE_INFO_FILE = "{}/role.info".format(APP_CONF_DIR)
 CLS_NAME_INFO_FILE = "{}/cluster-name.info".format(APP_CONF_DIR)
-ENV_INFO_FILE = "{}/envs.json".format(APP_CONF_DIR)
+ADMIN_INFO_FILE = "{}/admin.json".format(APP_CONF_DIR)
 
 SLURM_CONF = "/etc/slurm/slurm.conf"
 SLURM_CONF_TMPL = "{}/tmpl/slurm.conf.tmpl".format(WORK_DIR)
@@ -40,7 +40,6 @@ ACTION_RESET_PASSWORD = "passwd"
 
 ADMIN_HOME_FMT = "/home/{}"  # /home/nas_path
 HOME_FMT = "/home/{}/home/{}"  # /home/nas_path/home/user_name
-LDAP_NOT_EXIST_ERROR = 32
 
 LDAP_ADDRESS = "ldap://controller:389"
 LDAP_ROOT_DN = "dc=ehpccloud,dc=com"

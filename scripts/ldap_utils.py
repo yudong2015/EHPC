@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from common import (
-    logger,
+from common import logger
+from constants import (
     LDAP_ADDRESS,
     LDAP_ROOT_DN,
     LDAP_ADMIN,
