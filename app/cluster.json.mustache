@@ -10,7 +10,7 @@
         "container": {
             "type": "kvm",
             "zone": "ehpc",
-            "image": "img-0ttjwvh5"
+            "image": "img-iusndunt"
         },
         "net": {
             "vxnet": true,
@@ -27,6 +27,10 @@
         "services": {
             "init": {
                 "cmd": "appctl init"
+            },
+            "start": {
+                "cmd": "appctl start",
+                "order": 2
             }
         }
     }, {
@@ -35,7 +39,7 @@
         "container": {
             "type": "kvm",
             "zone": "ehpc",
-            "image": "img-0ttjwvh5"
+            "image": "img-iusndunt"
         },
         "net": {
             "vxnet": false,
@@ -71,7 +75,7 @@
         "container": {
             "type": "kvm",
             "zone": "ehpc",
-            "image": "img-0ttjwvh5"
+            "image": "img-iusndunt"
         },
         "net": {
             "vxnet": false,
@@ -106,6 +110,8 @@
     "env": {
         "admin_user": {{env.admin_user}},
         "admin_password": {{env.admin_password}},
+        "admin_uid": {{env.admin_uid}},
+        "admin_gid": {{env.admin_gid}},
         "nas_path": {{env.nas_path}}
     }
 }

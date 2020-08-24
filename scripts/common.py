@@ -2,6 +2,7 @@
 
 import sys
 import subprocess
+from subprocess import Popen, PIPE
 from constants import *
 from datetime import datetime
 import simplejson as jsmod
@@ -37,7 +38,7 @@ def json_load(json_file, err_exit=False):
             info = jsmod.load(fp)
         return info
     except Exception:
-        print "Failed to load file[%s]: [%s]", json_file, traceback.format_exc()
+        print "Failed to load file[%s]: [%s]" % (json_file, traceback.format_exc())
         if err_exit:
             sys.exit(1)
         return None

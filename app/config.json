@@ -226,6 +226,20 @@
             "type": "password",
             "required": "no"
         },{
+            "key": "admin_uid",
+            "label": "Admin User UID",
+            "description": "The uid of admin user",
+            "default": "",
+            "type": "string",
+            "required": "no"
+        },{
+            "key": "admin_gid",
+            "label": "Admin User GID",
+            "description": "The gid of admin user",
+            "default": "",
+            "type": "string",
+            "required": "no"
+        },{
             "key": "nas_path",
             "label": "NAS Path",
             "description": "The nas path of lustre to mount.",

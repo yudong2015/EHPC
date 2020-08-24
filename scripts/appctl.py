@@ -9,7 +9,11 @@ from constants import (
     START_CMDS,
     ROLE_LOGIN,
 )
-from common import run_shell, get_role, get_cluster_info
+from common import (
+    run_shell,
+    get_role,
+    get_cluster_info,
+)
 from host_utils import generate_hosts, set_hostname
 from slurm_utils import generate_conf
 
@@ -35,11 +39,13 @@ def start():
         cluster_info = get_cluster_info()
         user = cluster_info["admin_user"]
         passwd = cluster_info["admin_password"]
+        uid = cluster_info["admin_uid"]
+        gid = cluster_info["admin_gid"]
         nas_path = cluster_info.get("nas_path", user)
-        print "create user: [%s] [%s] [%s]", user, passwd, nas_path
-        if user and passwd and nas_path:
-            run_shell("useradd -d /home/{} -m {}".format(nas_path, user))
-            run_shell("echo '{}' | passwd  --stdin {}".format(passwd, user))
+        print "create user: [%s] [%s] [%s] [%s] [%s]" % (user, passwd, uid, gid, nas_path)
+        if user and passwd and uid and gid and nas_path:
+            run_shell("/opt/app/user.sh {} {} {} {} {}".format(
+                user, passwd, uid, gid, nas_path))
         else:
             print "skip creating user."
     else:
