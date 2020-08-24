@@ -127,7 +127,7 @@
                 "description": "Memory of each node (in MiB)",
                 "type": "integer",
                 "default": 2048,
-                "range": [1024, 2048, 4096, 8192, 16384, 32768, 65536],
+                "range": [2048, 4096, 8192, 16384, 32768, 65536],
                 "required": "yes"
             }, {
                 "key": "count",
