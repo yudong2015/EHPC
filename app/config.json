@@ -212,14 +212,14 @@
         "description": "E-HPC service properties",
         "type": "array",
         "properties": [{
-            "key": "user",
+            "key": "admin_user",
             "label": "Admin User",
             "description": "The admin user",
             "default": "admin",
             "type": "string",
             "required": "no"
         },{
-            "key": "password",
+            "key": "admin_password",
             "label": "Admin User Password",
             "description": "The password of admin user",
             "default": "",
