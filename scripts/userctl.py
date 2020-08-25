@@ -182,6 +182,6 @@ def main(argv):
         sys.exit(40)
 
 
-# usage: userctl get/add/delete {"user_name": "uxxx", "user_id": 1100, "group_id": 1100, "parent_uid"}
+# usage: userctl get/add/delete {"user_name": "uxxx", "password": "xxxx"}
 if __name__ == "__main__":
     res = main(sys.argv)
