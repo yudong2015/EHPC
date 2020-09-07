@@ -229,15 +229,15 @@
             "key": "admin_uid",
             "label": "Admin User UID",
             "description": "The uid of admin user",
-            "default": "",
-            "type": "string",
+            "type": "integer",
+            "default": 1100,
             "required": "no"
         },{
             "key": "admin_gid",
             "label": "Admin User GID",
             "description": "The gid of admin user",
-            "default": "",
-            "type": "string",
+            "type": "integer",
+            "default": 1100,
             "required": "no"
         },{
             "key": "nas_path",
