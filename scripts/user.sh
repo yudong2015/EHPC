@@ -22,8 +22,15 @@ fi
 cat /etc/passwd |grep ${NAME}
 e2=`echo $?`
 if [[ ${e1} == 1 ]];then
-  echo "Create user[${ADMIN_UID}][${NAME}] .."
-  useradd -d /home/${NAS_PATH} -u ${ADMIN_UID} -g ${ADMIN_GID} -m ${NAME}
+  echo "Create user[${ADMIN_UID}][${NAME}][${NAS_PATH}] .."
+
+  if [[ $NAS_PATH == \/* ]]; then
+      USER_HOME="/home${NAS_PATH}"
+  else
+      USER_HOME="/home/${NAS_PATH}"
+  fi
+
+  useradd -d ${USER_HOME} -u ${ADMIN_UID} -g ${ADMIN_GID} -m ${NAME}
   echo ${PASSWORD} |passwd --stdin ${NAME}
 else
   echo "User[${ADMIN_UID}][${NAME}] exist."
