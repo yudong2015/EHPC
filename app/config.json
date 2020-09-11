@@ -196,7 +196,7 @@
             "label": "Admin User",
             "description": "admin user for ehpc cluster",
             "type": "string",
-            "default": "",
+            "default": "admin",
             "required": "yes"
         }, {
             "key": "admin.password",

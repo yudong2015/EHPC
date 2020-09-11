@@ -25,6 +25,9 @@ def init():
     logger.info("Generating hosts...")
     generate_hosts()
 
+    logger.info("Create log home...")
+    run_shell("mkdir -p /opt/app/log/")
+
     logger.info("Setup hostname...")
     set_hostname()
 

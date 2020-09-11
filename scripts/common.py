@@ -2,22 +2,32 @@
 
 import sys
 import subprocess
+import traceback
+import simplejson as jsmod
+from datetime import datetime
+import logging
+from logging.handlers import RotatingFileHandler
+
 from constants import (
     CLUSTER_INFO_FILE,
     BACKUP_DIR,
+    LOGGER_DIR,
     COMPUTE_HOSTNAME_PREFIX,
     ROLE_COMPUTE,
 )
-from datetime import datetime
-import logging
-import traceback
-import simplejson as jsmod
-
-logging.basicConfig(
-    format='[%(asctime)s] - %(levelname)s: %(message)s [%(pathname)s:%(lineno)d]',
-    level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
+
+formater = logging.Formatter(
+    '[%(asctime)s] - %(levelname)s: %(message)s [%(pathname)s:%(lineno)d]')
+ehpc_handler = RotatingFileHandler("{}/ehpc.log".format(LOGGER_DIR), mode="w",
+                                   maxBytes=100000000, backupCount=3, encoding="utf-8")
+ehpc_handler.setFormatter(formater)
+ehpc_handler.setLevel(logging.DEBUG)
+
+logger.addHandler(ehpc_handler)
+
+CLUSTER_INFO = {}
 
 
 def backup(cmd):
@@ -52,9 +62,6 @@ def json_loads(json_str):
         logger.error("loads json str[%s] error: %s",
                      json_str, traceback.format_exc())
         return None
-
-
-CLUSTER_INFO = {}
 
 
 def get_cluster_info():

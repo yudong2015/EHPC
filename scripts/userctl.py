@@ -31,7 +31,8 @@ def get_user():
         res = {
             "labels": ["user"],
             "data": [u[1]["cn"] for u in ret if u[1].get("cn", None)]}
-        return jsmod.dumps(res, encoding='utf-8')
+        logger.info("List user: %s", res)
+        print jsmod.dumps(res, encoding='utf-8')
     except Exception as e:
         logger.error("list user failed: [%s]", e.message)
         sys.exit(1)
@@ -58,7 +59,7 @@ def add_user(params):
             #     ldap_client.create_group(gname, gid)
 
             uid = ldap_client.generate_uid_number()
-            home_dir = HOME_FMT.format(admin_info["nas_path"], user_name)
+            home_dir = get_home_dir(user_name)
             ldap_client.create_user(user_name, uid, password, home_dir, gid)
             logger.info("create user[%s], done.", user_name)
         except Exception:
@@ -84,7 +85,7 @@ def add_admin_user():
         ldap_client.create_group(gname, gid)
 
     if not ldap_client.user_exist(admin_info["user"], admin_info["user_id"]):
-        home_dir = ADMIN_HOME_FMT.format(admin_info["nas_path"])
+        home_dir = get_home_dir("", is_admin=True)
         ldap_client.create_user(admin_info["user"],
                                 admin_info["user_id"],
                                 admin_info["password"], home_dir, gid)
@@ -151,6 +152,15 @@ def reset_password(params):
         sys.exit(40)
 
 
+def get_home_dir(user_name, is_admin=False):
+    admin_info = get_cluster_info()
+    nas_path = admin_info["nas_path"].strip("/")
+    if is_admin:
+        return ADMIN_HOME_FMT.format(nas_path)
+    else:
+        return HOME_FMT.format(nas_path, user_name)
+
+
 def main(argv):
     if len(argv) < 2:
         logger.error("lack param: userctl action {k:v}")
@@ -184,4 +194,4 @@ def main(argv):
 
 # usage: userctl get/add/delete {"user_name": "uxxx", "password": "xxxx"}
 if __name__ == "__main__":
-    res = main(sys.argv)
+    main(sys.argv)

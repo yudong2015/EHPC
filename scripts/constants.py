@@ -6,6 +6,7 @@ HOSTS = "/etc/hosts"
 WORK_DIR = "/opt/app"
 APP_CONF_DIR = "{}/conf".format(WORK_DIR)
 BACKUP_DIR = "{}/backup".format(WORK_DIR)
+LOGGER_DIR = "{}/log".format(WORK_DIR)
 
 HOSTS_INFO_FILE = "{}/hosts.info".format(APP_CONF_DIR)
 RESOURCE_INFO_FILE = "{}/resource.info".format(APP_CONF_DIR)
