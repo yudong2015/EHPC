@@ -10,7 +10,7 @@
         "container": {
             "type": "kvm",
             "zone": "sh1",
-            "image": "img-yo827109"
+            "image": "img-os3oycsd"
         },
         "instance_class": {{cluster.login.instance_class}},
         "cpu": {{cluster.login.cpu}},
@@ -24,6 +24,14 @@
             "start": {
                 "cmd": "appctl start",
                 "order": 2
+            },
+            "stop": {
+                "cmd": "appctl stop",
+                "order": 1
+            },
+            "restart": {
+               "cmd": "appctl restart",
+               "order": 2
             }
         }
     }, {
@@ -31,7 +39,7 @@
         "container": {
             "type": "kvm",
             "zone": "sh1",
-            "image": "img-yo827109"
+            "image": "img-os3oycsd"
         },
         "instance_class": {{cluster.controller.instance_class}},
         "count": {{cluster.controller.count}},
@@ -86,7 +94,7 @@
         "container": {
             "type": "kvm",
             "zone": "sh1",
-            "image": "img-yo827109"
+            "image": "img-os3oycsd"
         },
         "instance_class": {{cluster.compute.instance_class}},
         "count": {{cluster.compute.count}},
@@ -112,9 +120,19 @@
             "restart": {
                "cmd": "appctl restart",
                "order": 2
+            },
+            "scale_out": {
+                "pre_check": "/opt/myapp/sbin/scale-out-pre-check.sh",
+                "cmd": "/opt/myapp/sbin/scale-out.sh"
+            },
+            "scale_in": {
+                "pre_check": "appctl ",
+                "cmd": "/opt/myapp/sbin/scale-in.sh",
+                "timeout": 86400
             }
         },
-        "vertical_scaling_policy": "parallel"
+        "vertical_scaling_policy": "parallel",
+        "advanced_actions": ["scale_horizontal"]
     }],
     "env": {
         "admin_user": {{env.admin.user}},
@@ -128,5 +146,13 @@
             "cmd" : "userctl list",
             "roles_to_execute_on": ["controller"]
         }
+    },
+    "health_check": {
+        "enable": true,
+        "interval_sec": 60,
+        "timeout_sec": 10,
+        "healthy_threshold": 3,
+        "unhealthy_threshold": 3,
+        "check_cmd": "appctl check"
     }
 }

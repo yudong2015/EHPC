@@ -17,9 +17,10 @@ from constants import (
 )
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 formater = logging.Formatter(
-    '[%(asctime)s] - %(levelname)s: %(message)s [%(pathname)s:%(lineno)d]')
+    '[%(asctime)s] - %(levelname)s - %(message)s [%(pathname)s:%(lineno)d]')
 ehpc_handler = RotatingFileHandler("{}/ehpc.log".format(LOGGER_DIR), mode="w",
                                    maxBytes=100000000, backupCount=3, encoding="utf-8")
 ehpc_handler.setFormatter(formater)
@@ -37,9 +38,10 @@ def backup(cmd):
     run_shell(cmd.format(now))
 
 
-def run_shell(cmd):
-    logger.info("Run cmd[%s]...", cmd)
-    subprocess.check_call(cmd.split(" "))
+def run_shell(cmd, without_log=False):
+    if not without_log:
+        logger.info("Run cmd[%s]...", cmd)
+    return subprocess.check_call(cmd.split(" "))
 
 
 def json_load(json_file, err_exit=False):
@@ -73,9 +75,8 @@ def get_cluster_info():
 
 def get_role():
     cluster_info = get_cluster_info()
-    role = cluster_info["role"]
+    role = cluster_info.get("role")
     if role:
-        logger.info("The role is: [%s].", role)
         return role
     else:
         logger.error("The role is none!")

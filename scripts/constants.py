@@ -10,7 +10,7 @@ LOGGER_DIR = "{}/log".format(WORK_DIR)
 
 HOSTS_INFO_FILE = "{}/hosts.info".format(APP_CONF_DIR)
 RESOURCE_INFO_FILE = "{}/resource.info".format(APP_CONF_DIR)
-CLUSTER_INFO_FILE = "{}/cluster.info.json".format(APP_CONF_DIR)
+CLUSTER_INFO_FILE = "{}/cluster.info".format(APP_CONF_DIR)
 
 SLURM_CONF = "/etc/slurm/slurm.conf"
 SLURM_CONF_TMPL = "{}/tmpl/slurm.conf.tmpl".format(WORK_DIR)
@@ -22,6 +22,7 @@ ACTION_APP_INIT = "init"
 ACTION_APP_START = "start"
 ACTION_APP_STOP = "stop"
 ACTION_APP_RESTART = "restart"
+ACTION_HEALTH_CHECK = "check"
 
 ROLE_CONTROLLER = "controller"
 ROLE_COMPUTE = "compute"

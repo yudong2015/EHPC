@@ -176,6 +176,7 @@ class LdapClient(object):
 
     def reset_password(self, user_name, old_password, new_password):
         logger.info("Reset password for user[%s]..", user_name)
+        self.ldap_object.passwd_s
         res = self.ldap_object.passwd_s(self.user_dn(user_name), old_password, new_password)
         logger.info("Reset response: [%s]", res)
 
