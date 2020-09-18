@@ -10,7 +10,7 @@ from constants import (
 )
 import ldap
 import random
-from ldap import modlist
+from ldap import modlist, UNWILLING_TO_PERFORM
 
 import sys
 reload(sys)
@@ -176,9 +176,15 @@ class LdapClient(object):
 
     def reset_password(self, user_name, old_password, new_password):
         logger.info("Reset password for user[%s]..", user_name)
-        self.ldap_object.passwd_s
-        res = self.ldap_object.passwd_s(self.user_dn(user_name), old_password, new_password)
-        logger.info("Reset response: [%s]", res)
+        try:
+            self.ldap_object.passwd_s(self.user_dn(user_name),
+                                      old_password, new_password)
+            logger.info("Reset password for user[%s], done.", user_name)
+            return 0
+        except UNWILLING_TO_PERFORM:
+            logger.error("Failed to reset passwd, "
+                         "user and password don't match!")
+            return 1
 
 
 def new_ldap_client():

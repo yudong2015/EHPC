@@ -138,7 +138,9 @@ def reset_password(params):
             if not ldap_client.user_exist(user_name):
                 sys.exit(44)
 
-            ldap_client.reset_password(user_name, password, new_password)
+            ret = ldap_client.reset_password(user_name, password, new_password)
+            if ret == 1:
+                sys.exit(41)
             logger.info("Reset password, done.")
         except Exception:
             logger.error("Failed reset password of user[%s]: [%s]",
