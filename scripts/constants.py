@@ -23,6 +23,8 @@ ACTION_APP_START = "start"
 ACTION_APP_STOP = "stop"
 ACTION_APP_RESTART = "restart"
 ACTION_HEALTH_CHECK = "check"
+ACTION_SCALE = "scale"
+ACTION_SCALE_PRE_CHECK = "scale-pre-check"
 
 ROLE_CONTROLLER = "controller"
 ROLE_COMPUTE = "compute"

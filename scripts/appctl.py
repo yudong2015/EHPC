@@ -9,9 +9,12 @@ from constants import (
     ACTION_APP_RESTART,
     ACTION_HEALTH_CHECK,
     ACTION_USER_ADD_ADMIN,
+    ACTION_SCALE,
+    ACTION_SCALE_PRE_CHECK,
     ROLE_CONTROLLER,
     ROLE_COMPUTE,
     ROLE_LOGIN,
+    SLURM_CONF,
 )
 from common import (
     logger,
@@ -26,6 +29,10 @@ ROLE_SERVICES = {
     ROLE_COMPUTE: ["slurmd", "nslcd"],
     ROLE_LOGIN: ["nslcd"],
 }
+clear_files = {
+    ROLE_COMPUTE: ["/usr/sbin/userctl", SLURM_CONF],
+    ROLE_LOGIN: ["/usr/sbin/userctl"]
+}
 
 
 def setup():
@@ -37,28 +44,33 @@ def setup():
 
     logger.info("Setup hostname...")
     set_hostname()
-
-    logger.info("Generating hosts for slurm configurations...")
-    generate_conf()
     logger.info("setup done.")
 
 
 def start():
     role = get_role()
+    # start before
+    if role == ROLE_CONTROLLER:
+        logger.info("Generating hosts for slurm configurations...")
+        generate_conf()
+    else:
+        for f in clear_files[role]:
+            if path.exists(f):
+                run_shell("rm {}".format(f))
+
+    # start service
     if role in ROLE_SERVICES:
         for service in ROLE_SERVICES[role]:
+            logger.info("Start service {}".format(service))
             run_shell("systemctl start {}".format(service))
     else:
         logger.error("Un-support role[%s].", role)
         sys.exit(1)
 
+    # start post
     if role == ROLE_CONTROLLER:
         # create admin user
         run_shell("userctl {}".format(ACTION_USER_ADD_ADMIN))
-    else:
-        userctl_file = "/usr/sbin/userctl"
-        if path.exists(userctl_file):
-            run_shell("rm {}".format(userctl_file))
     logger.info("%s started.", role)
 
 
@@ -99,6 +111,18 @@ def health_check():
     sys.exit(0)
 
 
+def scale_pre_check():
+    pass
+
+
+def scale():
+    logger.info("generate slurm conf for scaling..")
+    generate_conf()
+
+    logger.info("re-config slurm configuration for cluster..")
+    run_shell("scontrol reconfig")
+
+
 def help():
     logger.info("usage: appctl init/start/stop")
 
@@ -109,6 +133,8 @@ ACTION_MAP = {
     ACTION_APP_STOP: stop,
     ACTION_APP_RESTART: restart,
     ACTION_HEALTH_CHECK: health_check,
+    ACTION_SCALE_PRE_CHECK: scale_pre_check,
+    ACTION_SCALE: scale,
 }
 
 
