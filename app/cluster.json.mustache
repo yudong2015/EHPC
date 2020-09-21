@@ -10,7 +10,7 @@
         "container": {
             "type": "kvm",
             "zone": "sh1",
-            "image": "img-lcc5sdr6"
+            "image": "img-tupkii6z"
         },
         "instance_class": {{cluster.login.instance_class}},
         "cpu": {{cluster.login.cpu}},
@@ -39,7 +39,7 @@
         "container": {
             "type": "kvm",
             "zone": "sh1",
-            "image": "img-lcc5sdr6"
+            "image": "img-tupkii6z"
         },
         "instance_class": {{cluster.controller.instance_class}},
         "count": {{cluster.controller.count}},
@@ -87,15 +87,6 @@
                     "password": {{service_params.controller.password}},
                     "new_password": {{service_params.controller.new_password}}
                 }
-            },
-            "scale_out": {
-                "pre_check": "appctl scale-pre-check",
-                "cmd": "appctl scale"
-            },
-            "scale_in": {
-                "pre_check": "appctl scale-pre-check",
-                "cmd": "appctl scale",
-                "timeout": 86400
             }
         }
     },{
@@ -103,7 +94,7 @@
         "container": {
             "type": "kvm",
             "zone": "sh1",
-            "image": "img-lcc5sdr6"
+            "image": "img-tupkii6z"
         },
         "instance_class": {{cluster.compute.instance_class}},
         "count": {{cluster.compute.count}},

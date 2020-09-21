@@ -22,7 +22,7 @@ from constants import (
 from ldap_utils import new_ldap_client
 
 
-def get_user():
+def get():
     ldap_client = None
     try:
         ldap_client = new_ldap_client()
@@ -41,7 +41,7 @@ def get_user():
             ldap_client.close()
 
 
-def add_user(params):
+def add(params):
     user_name = params.get("user_name", None)
     password = params.get("password", None)
     if user_name and password:
@@ -92,7 +92,7 @@ def add_admin_user():
     ldap_client.close()
 
 
-def delete_user(params):
+def delete(params):
     user_name = params.get("user_name", None)
     if not user_name:
         logger.error("required params: user_name[%s].", user_name)
@@ -163,15 +163,20 @@ def get_home_dir(user_name, is_admin=False):
         return HOME_FMT.format(nas_path, user_name)
 
 
+def help():
+    print "userctl add/get/delete/passwd/add_admin"
+
+
 def main(argv):
     if len(argv) < 2:
         logger.error("lack param: userctl action {k:v}")
+        help()
         sys.exit(40)
     else:
         action = argv[1]
 
     if action == ACTION_USER_LIST:
-        return get_user()
+        return get()
     elif action == ACTION_USER_ADD_ADMIN:
         add_admin_user()
     elif action in [ACTION_USER_ADD,
@@ -184,13 +189,14 @@ def main(argv):
             sys.exit(40)
 
         if action == ACTION_USER_ADD:
-            add_user(args)
+            add(args)
         elif action == ACTION_USER_DELETE:
-            delete_user(args)
+            delete(args)
         elif action == ACTION_RESET_PASSWORD:
             reset_password(args)
     else:
         logger.error("can not handle the action[%s].", action)
+        help()
         sys.exit(40)
 
 

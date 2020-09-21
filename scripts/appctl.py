@@ -9,8 +9,7 @@ from constants import (
     ACTION_APP_RESTART,
     ACTION_HEALTH_CHECK,
     ACTION_USER_ADD_ADMIN,
-    ACTION_SCALE,
-    ACTION_SCALE_PRE_CHECK,
+    ACTION_METADATA_RELOAD,
     ROLE_CONTROLLER,
     ROLE_COMPUTE,
     ROLE_LOGIN,
@@ -111,20 +110,22 @@ def health_check():
     sys.exit(0)
 
 
-def scale_pre_check():
-    pass
+def metadata_reload():
+    logger.info("generate hosts for reloading..")
+    generate_hosts()
 
+    role = get_role()
+    if role == ROLE_CONTROLLER:
+        logger.info("generate slurm conf for reloading metadata..")
+        generate_conf()
 
-def scale():
-    logger.info("generate slurm conf for scaling..")
-    generate_conf()
-
-    logger.info("re-config slurm configuration for cluster..")
-    run_shell("scontrol reconfig")
+        # TODO: 多controller节点时，只在一个master节点执行此命令即可
+        logger.info("re-config slurm configuration for cluster..")
+        run_shell("systemctl restart slurmctld")
 
 
 def help():
-    logger.info("usage: appctl init/start/stop")
+    print "usage: appctl init/start/stop/restart/check/reload"
 
 
 ACTION_MAP = {
@@ -133,8 +134,7 @@ ACTION_MAP = {
     ACTION_APP_STOP: stop,
     ACTION_APP_RESTART: restart,
     ACTION_HEALTH_CHECK: health_check,
-    ACTION_SCALE_PRE_CHECK: scale_pre_check,
-    ACTION_SCALE: scale,
+    ACTION_METADATA_RELOAD: metadata_reload,
 }
 
 
