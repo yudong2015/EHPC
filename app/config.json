@@ -245,35 +245,35 @@
             "description": "The admin user",
             "default": "admin",
             "type": "string",
-            "required": "no"
+            "required": "yes"
         },{
             "key": "admin.password",
             "label": "Admin User Password",
             "description": "The password of admin user",
             "default": "",
             "type": "password",
-            "required": "no"
+            "required": "yes"
         },{
             "key": "admin.user_id",
             "label": "Admin User UID",
             "description": "The uid of admin user",
             "type": "integer",
             "default": 45507,
-            "required": "no"
+            "required": "yes"
         },{
             "key": "admin.group_id",
             "label": "Admin User GID",
             "description": "The gid of admin user",
             "type": "integer",
             "default": 45507,
-            "required": "no"
+            "required": "yes"
         },{
             "key": "nas_path",
             "label": "NAS Path",
             "description": "The nas path of lustre to mount.",
             "default": "",
             "type": "string",
-            "required": "no"
+            "required": "yes"
         }]
     }]
 }
