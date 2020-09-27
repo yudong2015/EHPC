@@ -23,6 +23,7 @@
   "delete_user": "删除用户",
   "reset_password": "重置密码",
   "user": "用户",
+  "create_time": "创建时间",
   "User Name": "用户名",
   "Password": "密码",
   "New Password": "新密码",

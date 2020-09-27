@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+import random
+import time
+
 from common import logger
 from constants import (
     LDAP_ADDRESS,
@@ -8,16 +12,15 @@ from constants import (
     LDAP_ADMIN,
     LDAP_ADMIN_PASSWORD,
 )
+
 import ldap
-import random
 from ldap import modlist, UNWILLING_TO_PERFORM
 
-import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
 GROUP_SEARCH_ATTRS = ["gidNumber", "cn"]
-USER_SEARCH_ATTRS = ["cn", "uidNumber", "gidNumber"]
+USER_SEARCH_ATTRS = ["cn", "uidNumber", "gidNumber", "description"]
 
 
 class LdapClient(object):
@@ -66,6 +69,9 @@ class LdapClient(object):
         logger.info("create user, home: [%s], name: [%s], uid: [%s], "
                     "gid: [%s], pwd: [%s]", home_dir, user_name, uid,
                     gid, password)
+        # create_time is current_time
+        create_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+
         attrs = dict(
             sn=user_name,
             cn=user_name,  # common name
@@ -76,6 +82,7 @@ class LdapClient(object):
             ou=self.user_ou,  # People
             homeDirectory=home_dir,
             loginShell="/bin/bash",
+            description=create_time,
             objectClass=self.user_object_class  # ['posixAccount','inetOrgPerson'] #cn、sn必填
         )
         ldif = modlist.addModlist(attrs)

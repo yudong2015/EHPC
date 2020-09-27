@@ -11,9 +11,10 @@ from constants import (
 )
 import ldap
 from ldap import modlist, LDAPError
+import simplejson as jsmod
 
 GROUP_SEARCH_ATTRS = ["gidNumber", "cn"]
-USER_SEARCH_ATTRS = ["cn", "uidNumber", "gidNumber"]
+USER_SEARCH_ATTRS = ["cn", "uidNumber", "gidNumber", "description"]
 
 
 class LdapClient(object):
@@ -55,6 +56,8 @@ class LdapClient(object):
         logger.info("create user, home: [%s], name: [%s], uid: [%s], "
                     "gid: [%s], pwd: [%s]", home_dir, user_name, uid,
                     gid, password)
+        import time
+        create_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         attrs = dict(
             sn=user_name,
             cn=user_name,  # common name
@@ -65,6 +68,7 @@ class LdapClient(object):
             ou=self.user_ou,  # People
             homeDirectory=home_dir,
             loginShell="/bin/bash",
+            description=create_time,
             objectClass=self.user_object_class  # ['posixAccount','inetOrgPerson'] #cn、sn必填
         )
         dn = "cn={cn},ou={ou},{parent_dn}".format(
@@ -255,21 +259,27 @@ if __name__ == "__main__":
                                 LDAP_ADMIN, LDAP_ADMIN_PASSWORD)
             client.connect()
 
-            # ret = client.create_user(name, uid, password, "/home/usr-xxxxx/{}".format(name), gid)
-            # if ret["ret_code"] == RET_SUCCESS:
-            #     logger.info("Create user successfully.")
-            # else:
-            #     raise Exception("Create user Failed!!!")
-            #
+            # client.list_user()
+            # client.create_user(name, uid, password, "/home/usr-xxxxx/{}".format(name), gid)
+
             # ret = client.create_group(name, gid)
             # if ret["ret_code"] == RET_SUCCESS:
             #     logger.info("Create successfully.")
             # else:
             #     raise Exception("Create Failed!!!")
 
-            client.list_user()
-            client.delete_user(name)
-            client.list_user()
+            ret = client.list_user()
+
+            res = {
+                "labels": ["uid", "user", "create_time"],
+                "data": [[u[1]["uidNumber"][0], u[1]["cn"][0], u[1].get("description", [""])[0]]
+                         for u in ret if u[1].get("cn", None)]
+            }
+            logger.info("List user: %s", res)
+            print jsmod.dumps(res, encoding='utf-8')
+
+            # client.delete_user("tuser3")
+            # client.list_user()
         except LDAPError as e:
             logger.error("ldap error: [%s]", e.message)
             logger.error("ldap error type: [%s]", type(e.message))

@@ -27,10 +27,22 @@ def get():
     try:
         ldap_client = new_ldap_client()
         ret = ldap_client.list_user()
+        # ret format:
+        # [('ou=People,dc=ehpccloud,dc=com', {}),
+        #
+        #  ('cn=admin,ou=People,dc=ehpccloud,dc=com',
+        #   {'gidNumber': ['1100'], 'uidNumber': ['1100'], 'cn': ['admin']}),
+        #
+        #  ('cn=tuser3,ou=People,dc=ehpccloud,dc=com',
+        #   {'gidNumber': ['1000'], 'uidNumber': ['1104'], 'cn': ['tuser3'],
+        #    'description': ['2020-09-20 14:22:00']})
+        # ]
 
         res = {
-            "labels": ["user"],
-            "data": [u[1]["cn"] for u in ret if u[1].get("cn", None)]}
+            "labels": ["uid", "user", "create_time"],
+            "data": [[u[1]["uidNumber"][0], u[1]["cn"][0], u[1].get("description", [""])[0]]
+                     for u in ret if u[1].get("cn", None)]
+        }
         logger.info("List user: %s", res)
         print jsmod.dumps(res, encoding='utf-8')
     except Exception as e:
