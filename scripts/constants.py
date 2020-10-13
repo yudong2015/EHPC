@@ -47,3 +47,19 @@ LDAP_ADDRESS = "ldap://controller:389"
 LDAP_ROOT_DN = "dc=ehpccloud,dc=com"
 LDAP_ADMIN = "ldapadm"
 LDAP_ADMIN_PASSWORD = "Zhu1241jie"
+
+ACTION_PARAM_CONF = {
+    # userctl
+    ACTION_USER_ADD: {
+        "required": ["user_name", "password"],
+        "str_params": ["user_name", "password"],
+    },
+    ACTION_RESET_PASSWORD: {
+        "required": ["user_name", "password", "new_password"],
+        "str_params": ["user_name", "password", "new_password"],
+    },
+    ACTION_USER_DELETE: {
+        "required": ["user_name"],
+        "str_params": ["user_name"],
+    }
+}

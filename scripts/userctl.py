@@ -6,8 +6,8 @@ import traceback
 
 from common import (
     logger,
-    json_loads,
     get_cluster_info,
+    ArgsParser,
 )
 from constants import (
     ACTION_USER_ADD,
@@ -179,36 +179,28 @@ def help():
     print "userctl add/get/delete/passwd/add_admin"
 
 
+ACTION_MAP = {
+    "help": help,
+    "--help": help,
+    ACTION_USER_LIST: get,
+    ACTION_USER_ADD: add,
+    ACTION_USER_ADD_ADMIN: add_admin_user,
+    ACTION_RESET_PASSWORD: reset_password,
+    ACTION_USER_DELETE: delete,
+}
+
+
 def main(argv):
-    if len(argv) < 2:
-        logger.error("lack param: userctl action {k:v}")
-        help()
+    parser = ArgsParser()
+    ret = parser.parse(argv)
+    if not ret:
         sys.exit(40)
+
+    if parser.action in ACTION_MAP:
+        ACTION_MAP[parser.action](parser.directive) if parser.directive \
+            else ACTION_MAP[parser.action]()
     else:
-        action = argv[1]
-
-    if action == ACTION_USER_LIST:
-        return get()
-    elif action == ACTION_USER_ADD_ADMIN:
-        add_admin_user()
-    elif action in [ACTION_USER_ADD,
-                    ACTION_USER_DELETE,
-                    ACTION_RESET_PASSWORD]:
-
-        args = json_loads(argv[2])
-        if not args:
-            logger.error("json load error with params.")
-            sys.exit(40)
-
-        if action == ACTION_USER_ADD:
-            add(args)
-        elif action == ACTION_USER_DELETE:
-            delete(args)
-        elif action == ACTION_RESET_PASSWORD:
-            reset_password(args)
-    else:
-        logger.error("can not handle the action[%s].", action)
-        help()
+        logger.error("can not handle the action[%s].", parser.action)
         sys.exit(40)
 
 
