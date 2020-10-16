@@ -233,6 +233,12 @@
                     "description": "new password of the user to reset",
                     "type": "password",
                     "required": "yes"
+            },{
+                    "key": "software",
+                    "label": "Software",
+                    "description": "the install/uninstall software list",
+                    "type": "array",
+                    "required": "yes"
             }]
         }]
     }, {
