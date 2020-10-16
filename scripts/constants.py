@@ -38,7 +38,7 @@ ACTION_USER_LIST = "list"
 ACTION_USER_ADD = "add"
 ACTION_USER_ADD_ADMIN = "add_admin"
 ACTION_USER_DELETE = "delete"
-ACTION_RESET_PASSWORD = "passwd"
+ACTION_RESET_PASSWORD = "reset_passwd"
 
 ADMIN_HOME_FMT = "/home/{}"  # /home/nas_path
 HOME_FMT = "/home/{}/home/{}"  # /home/nas_path/home/user_name
@@ -48,18 +48,84 @@ LDAP_ROOT_DN = "dc=ehpccloud,dc=com"
 LDAP_ADMIN = "ldapadm"
 LDAP_ADMIN_PASSWORD = "Zhu1241jie"
 
+# softwarectl constants
+ACTION_SOFTWARE_INSTALL = "install"
+ACTION_SOFTWARE_UNINSTALL = "uninstall"
+
 ACTION_PARAM_CONF = {
     # userctl
     ACTION_USER_ADD: {
-        "required": ["user_name", "password"],
-        "str_params": ["user_name", "password"],
+        "user_name": {
+            "type": "str",
+            "required": True
+        },
+        "password": {
+            "type": "str",
+            "required": True
+        }
     },
     ACTION_RESET_PASSWORD: {
-        "required": ["user_name", "password", "new_password"],
-        "str_params": ["user_name", "password", "new_password"],
+        "user_name": {
+            "type": "str",
+            "required": True
+        },
+        "password": {
+            "type": "str",
+            "required": True
+        },
+        "new_password": {
+            "type": "str",
+            "required": False
+        }
     },
     ACTION_USER_DELETE: {
-        "required": ["user_name"],
-        "str_params": ["user_name"],
-    }
+        "user_name": {
+            "type": "str",
+            "required": True
+        }
+    },
+
+    # softwarectl
+    ACTION_SOFTWARE_INSTALL: {
+        "software": {
+            "type": "list",
+            "required": True,
+            "children": {
+                "type": "dict",
+                "children": {
+                    "name": {
+                        "type": "str",
+                        "required": True
+                    },
+                    "source": {
+                        "type": "str",
+                        "required": True
+                    },
+                    "installer": {
+                        "type": "str",
+                        "required": False
+                    }
+                }
+            }
+        }
+    },
+    ACTION_SOFTWARE_UNINSTALL: {
+        "software": {
+            "type": "list",
+            "required": True,
+            "children": {
+                "type": "dict",
+                "children": {
+                    "name": {
+                        "type": "str",
+                        "required": True
+                    },
+                    "uninstaller": {
+                        "type": "str",
+                        "required": False
+                    }
+                }
+            }
+        }
+    },
 }
