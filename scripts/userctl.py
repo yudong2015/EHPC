@@ -64,9 +64,9 @@ def add(params):
                 logger.error("The user[%s] already exist.", user_name)
                 sys.exit(45)
 
-            admin_info = get_cluster_info()
-            gid = admin_info["group_id"]
-            # gname = admin_info["user"]
+            cluster_info = get_cluster_info()
+            gid = cluster_info["admin_gid"]
+            # gname = cluster_info["user"]
             # if not ldap_client.group_exist(gid):
             #     ldap_client.create_group(gname, gid)
 
@@ -82,25 +82,25 @@ def add(params):
             if ldap_client:
                 ldap_client.close()
     else:
-        logger.error("Require params: user_name: [%s], password: [%s]",
+        logger.error("Required params: user_name: [%s], password: [%s]",
                      user_name, password)
         sys.exit(40)
 
 
 def add_admin_user():
     ldap_client = new_ldap_client()
-    admin_info = get_cluster_info()
+    cluster_info = get_cluster_info()
 
-    gid = admin_info["group_id"]
+    gid = cluster_info["admin_gid"]
     if not ldap_client.group_exist(gid):
-        gname = admin_info["user"]
+        gname = cluster_info["admin_user"]
         ldap_client.create_group(gname, gid)
 
-    if not ldap_client.user_exist(admin_info["user"], admin_info["user_id"]):
+    if not ldap_client.user_exist(cluster_info["admin_user"], cluster_info["admin_uid"]):
         home_dir = get_home_dir("", is_admin=True)
-        ldap_client.create_user(admin_info["user"],
-                                admin_info["user_id"],
-                                admin_info["password"], home_dir, gid)
+        ldap_client.create_user(cluster_info["admin_user"],
+                                cluster_info["admin_uid"],
+                                cluster_info["admin_password"], home_dir, gid)
     ldap_client.close()
 
 
@@ -167,8 +167,8 @@ def reset_password(params):
 
 
 def get_home_dir(user_name, is_admin=False):
-    admin_info = get_cluster_info()
-    nas_path = admin_info["nas_path"].strip("/")
+    cluster_info = get_cluster_info()
+    nas_path = cluster_info["nas_path"].strip("/")
     if is_admin:
         return ADMIN_HOME_FMT.format(nas_path)
     else:
