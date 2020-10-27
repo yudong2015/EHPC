@@ -11,6 +11,7 @@ from constants import (
     LDAP_ROOT_DN,
     LDAP_ADMIN,
     LDAP_ADMIN_PASSWORD,
+    LDAP_CONNECT_RETRY,
 )
 
 import ldap
@@ -44,14 +45,26 @@ class LdapClient(object):
         self.ldap_object = None
 
     def connect(self):
+        connected = False
         if self.ldap_object is None:
             logger.info("Connecting ldap server..")
             self.ldap_object = ldap.initialize(self.address)
             self.ldap_object.protocol_version = ldap.VERSION3
             self.ldap_object.set_option(ldap.OPT_REFERRALS, 0)
-            self.ldap_object.simple_bind_s(self.bind_dn, self.passwd)
+            retry = 0
+            while not connected and retry < LDAP_CONNECT_RETRY:
+                try:
+                    self.ldap_object.simple_bind_s(self.bind_dn, self.passwd)
+                    connected = True
+                except Exception as e:
+                    logger.warning("Failed to connect ldap server: [%s]", e)
+                    retry += 1
+                    logger.warning("retry[%s] to connect..", retry)
+                    time.sleep(5)
             logger.info("connected.")
-        return self.ldap_object
+        else:
+            connected = True
+        return connected
 
     def close(self):
         if self.ldap_object is not None:
@@ -197,5 +210,6 @@ class LdapClient(object):
 def new_ldap_client():
     c = LdapClient(
         LDAP_ADDRESS, LDAP_ROOT_DN, LDAP_ADMIN, LDAP_ADMIN_PASSWORD)
-    c.connect()
+    if not c.connect():
+        sys.exit(1)
     return c
