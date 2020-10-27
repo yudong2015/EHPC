@@ -20,6 +20,8 @@ SLURM_CONF_TMPL = "{}/tmpl/slurm.conf.tmpl".format(WORK_DIR)
 BACKUP_HOSTS_CMD = "cp {} {}/hosts_{}.bak".format(HOSTS, BACKUP_DIR, "{}")
 BACKUP_SLURM_CONF_CMD = "cp {} {}/slurm.conf_{}.bak".format(SLURM_CONF, BACKUP_DIR, "{}")
 
+SOFTWARE_INFO = "{}/software.info".format(APP_CONF_DIR)
+
 ACTION_APP_INIT = "init"
 ACTION_APP_START = "start"
 ACTION_APP_STOP = "stop"
@@ -47,6 +49,7 @@ LDAP_ADDRESS = "ldap://controller:389"
 LDAP_ROOT_DN = "dc=ehpccloud,dc=com"
 LDAP_ADMIN = "ldapadm"
 LDAP_ADMIN_PASSWORD = "Zhu1241jie"
+LDAP_CONNECT_RETRY = 5
 
 # softwarectl constants
 ACTION_SOFTWARE_INSTALL = "install"
@@ -55,74 +58,89 @@ ACTION_SOFTWARE_UNINSTALL = "uninstall"
 ACTION_PARAM_CONF = {
     # userctl
     ACTION_USER_ADD: {
-        "user_name": {
-            "type": "str",
-            "required": True
-        },
-        "password": {
-            "type": "str",
-            "required": True
+        "type": dict,
+        "children": {
+            "user_name": {
+                "type": str,
+                "required": True
+            },
+            "password": {
+                "type": str,
+                "required": True
+            }
         }
     },
     ACTION_RESET_PASSWORD: {
-        "user_name": {
-            "type": "str",
-            "required": True
-        },
-        "password": {
-            "type": "str",
-            "required": True
-        },
-        "new_password": {
-            "type": "str",
-            "required": False
+        "type": dict,
+        "children": {
+            "user_name": {
+                "type": str,
+                "required": True
+            },
+            "password": {
+                "type": str,
+                "required": True
+            },
+            "new_password": {
+                "type": str,
+                "required": False
+            }
         }
     },
     ACTION_USER_DELETE: {
-        "user_name": {
-            "type": "str",
-            "required": True
+        "type": dict,
+        "children": {
+            "user_name": {
+                "type": str,
+                "required": True
+            }
         }
     },
 
     # softwarectl
     ACTION_SOFTWARE_INSTALL: {
-        "software": {
-            "type": "list",
-            "required": True,
-            "children": {
-                "type": "dict",
+        "type": dict,
+        "children": {
+            "software": {
+                "type": list,
+                "required": True,
                 "children": {
-                    "name": {
-                        "type": "str",
-                        "required": True
-                    },
-                    "source": {
-                        "type": "str",
-                        "required": True
-                    },
-                    "installer": {
-                        "type": "str",
-                        "required": False
+                    "type": dict,
+                    "children": {
+                        "name": {
+                            "type": str,
+                            "required": True
+                        },
+                        "source": {
+                            "type": str,
+                            "required": True
+                        },
+                        "installer": {
+                            "type": str,
+                            "required": False
+                        }
                     }
                 }
             }
         }
     },
     ACTION_SOFTWARE_UNINSTALL: {
-        "software": {
-            "type": "list",
-            "required": True,
-            "children": {
-                "type": "dict",
+        "type": dict,
+        "children": {
+            "software": {
+                "type": list,
+                "required": True,
                 "children": {
-                    "name": {
-                        "type": "str",
-                        "required": True
-                    },
-                    "uninstaller": {
-                        "type": "str",
-                        "required": False
+                    "type": dict,
+                    "children": {
+                        "name": {
+                            "type": str,
+                            "required": True
+                        },
+                        "uninstaller": {
+                            "type": str,
+                            "required": False
+                        }
                     }
                 }
             }

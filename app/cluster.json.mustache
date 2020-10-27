@@ -9,7 +9,7 @@
         "container": {
             "type": "kvm",
             "zone": "nscc",
-            "image": "img-i1fgphgm"
+            "image": "img-6cqldcl3"
         },
         "net": {
             "vxnet": true,
@@ -46,7 +46,7 @@
         "container": {
             "type": "kvm",
             "zone": "nscc",
-            "image": "img-i1fgphgm"
+            "image": "img-6cqldcl3"
         },
         "net": {
             "vxnet": false,
@@ -75,7 +75,6 @@
                "cmd": "appctl restart",
                "order": 1
             },
-
             "add_user": {
                 "type": "custom",
                 "cmd": "userctl add",
@@ -126,7 +125,7 @@
         "container": {
             "type": "kvm",
             "zone": "nscc",
-            "image": "img-i1fgphgm"
+            "image": "img-6cqldcl3"
         },
         "net": {
             "vxnet": false,
@@ -164,7 +163,8 @@
         "admin_password": {{env.admin.password}},
         "admin_user_id": {{env.admin.user_id}},
         "admin_group_id": {{env.admin.group_id}},
-        "nas_path": {{env.nas_path}}
+        "nas_path": {{env.nas_path}},
+        "software": {{env.software}}
     },
     "display_tabs" : {
         "cluster_user" : {

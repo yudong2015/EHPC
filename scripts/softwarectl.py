@@ -9,15 +9,36 @@ from common import (
     ArgsParser,
     run_shell,
     get_cluster_info,
+    json_load,
+    json_loads,
 )
 from constants import (
+    SOFTWARE_INFO,
+    ACTION_PARAM_CONF,
     ACTION_SOFTWARE_INSTALL,
     ACTION_SOFTWARE_UNINSTALL,
 
 )
 
-SOFTWARE_WORKDIR = "/tmp/software"
+SOFTWARE_WORKDIR_FMT = "/home/{}/tmp/software"
 SOFTWARE_HOME_FMT = "/home/{}/opt"
+
+
+def init_software():
+    # install software
+    software = json_load(SOFTWARE_INFO)
+    if software is None:
+        logger.error("The software info is invalid format!")
+        return 40
+
+    logger.info("init: install software[%s]..", software)
+    if software:
+        p_conf = ACTION_PARAM_CONF[ACTION_SOFTWARE_INSTALL]["children"]["software"]
+        if not ArgsParser.check("software", software, p_conf):
+            logger.error("The software[%s] valid failed!", software)
+            return 40
+        return install(software, ignore_exist=True)
+    return 0
 
 
 # software format:
@@ -26,20 +47,33 @@ SOFTWARE_HOME_FMT = "/home/{}/opt"
 #     "source": xxx,
 #     "installer": xxx, Run: [SOFTWARE_HOME]/[installer]
 #   }]
-def install(software):
-    logger.info("install software[%s]..", software)
-    run_shell("mkdir -p {}".format(SOFTWARE_WORKDIR))
+def install(software_list, ignore_exist=False):
+    logger.info("install software[%s]..", software_list)
     software_home = get_software_home()
-    for s in software:
-        if os.path.exists("{}/{}".format(software_home, s)):
-            logger.error("The software[%s] already exist!", s)
-            sys.exit(55)
+    workdir = get_software_workdir()
+    if software_list:
+        run_shell("mkdir -p {}".format(workdir))
 
-    for s in software:
-        _install(s["name"], s["source"], software_home, s.get("installer"))
+    exist_info = {}
+    for s in software_list:
+        # software exist
+        if os.path.exists("{}/{}".format(software_home, s["name"])):
+            exist_info[s["name"]] = True
+            logger.error("The software[%s] already exist!", s["name"])
+            if not ignore_exist:
+                return 55
+
+    for s in software_list:
+        if not exist_info.get(s["name"], False):
+            ret = _install(s["name"], s["source"],
+                           workdir, software_home,
+                           s.get("installer"))
+            if ret is not 0:
+                return ret
+    return 0
 
 
-def _install(software, source, software_home, installer=None):
+def _install(software, source, workdir, software_home, installer=None):
     """
     :param source: full url to download software, eg: root@xxx/aa/bb/cc.tar.gz
     :param software_home: the home that software would to be installed
@@ -50,8 +84,10 @@ def _install(software, source, software_home, installer=None):
     logger.info("Do install software[%s] from source[%s]..", software, source)
 
     package = source.split("/")[-1]
-    un_tar_dir = "{}/{}".format(SOFTWARE_WORKDIR, software)
+    package_path = "{}/{}".format(workdir, package)
+    un_tar_dir = "{}/{}".format(workdir, software)
 
+    # format installer
     if installer:
         installer = "bash {}".format(installer)
     else:
@@ -61,15 +97,21 @@ def _install(software, source, software_home, installer=None):
 
     try:
         # download
-        run_shell("rsync -q -aP {} {}/".format(source, SOFTWARE_WORKDIR))
+        run_shell("rsync -q -aP {} {}/".format(source, workdir), timeout=600)
         # un-tar
-        run_shell("tar -zxf {}/{}".format(SOFTWARE_WORKDIR, package))
+        run_shell("tar -zxf {}".format(package_path), cwd=workdir, timeout=120)
         # install
-        run_shell("export SOFTWARE_HOME={} && {}".format(software_home, installer))
-    except Exception as e:
-        logger.error("Failed to run install cmd: %s", e.message)
-        logger.error("Error: %s", traceback.format_exc())
-        sys.exit(1)
+        run_shell("export SOFTWARE_HOME={} && {}".format(software_home, installer), timeout=120)
+        # clean
+        if os.path.exists(package_path):
+            run_shell("rm {}".format(package_path))
+        if os.path.exists(un_tar_dir):
+            run_shell("rm -rf {}".format(un_tar_dir))
+    except Exception:
+        logger.error("Failed to install software[%s]: \n%s",
+                     software, traceback.format_exc())
+        return 1
+    return 0
 
 
 # software format:
@@ -83,10 +125,13 @@ def uninstall(software):
     for s in software:
         if not os.path.exists("{}/{}".format(software_home, s)):
             logger.error("The software[%s] not exist!", s)
-            sys.exit(54)
+            return 54
 
     for s in software:
-        _uninstall(s["name"], software_home, s.get("uninstaller"))
+        ret = _uninstall(s["name"], software_home, s.get("uninstaller"))
+        if ret is not 0:
+            return ret
+    return 0
 
 
 def _uninstall(software, software_home, uninstaller=None):
@@ -104,12 +149,18 @@ def _uninstall(software, software_home, uninstaller=None):
     except Exception as e:
         logger.error("Failed to run install cmd: %s", e.message)
         logger.error("Error: %s", traceback.format_exc())
-        sys.exit(1)
+        return 1
+    return 0
 
 
 def get_software_home():
     cluster_info = get_cluster_info()
     return SOFTWARE_HOME_FMT.format(cluster_info["admin_user"])
+
+
+def get_software_workdir():
+    cluster_info = get_cluster_info()
+    return SOFTWARE_WORKDIR_FMT.format(cluster_info["admin_user"])
 
 
 def help():
@@ -122,6 +173,7 @@ ACTION_MAP = {
     "--help": help,
     ACTION_SOFTWARE_INSTALL: install,
     ACTION_SOFTWARE_UNINSTALL: uninstall,
+    "init": init_software,  # testing
 }
 
 
@@ -135,9 +187,18 @@ def main(argv):
 
         if parser.action in ACTION_MAP:
             if parser.directive:
-                ACTION_MAP[parser.action](parser.directive["software"])
+                software = parser.directive["software"]
+                if isinstance(software, str):
+                    software = json_loads(software)
+                    if software is None:
+                        logger.error("Failed to load software[%s] to json!",
+                                     parser.directive)
+                        sys.exit(40)
+
+                ret = ACTION_MAP[parser.action](software)
             else:
-                ACTION_MAP[parser.action]()
+                ret = ACTION_MAP[parser.action]()
+            sys.exit(ret)
         else:
             logger.error("can not handle the action[%s].", parser.action)
             sys.exit(40)

@@ -56,7 +56,7 @@ ACTION_MAP = {
 # could use env [SOFTWARE_HOME] in install or uninstall script
 def main(argv):
     parser = ArgsParser()
-    ret = parser.parse(argv[1:])
+    ret = parser.parse(argv)
     if not ret:
         logger.error("Failed parse param: [%s]", argv[1:])
         sys.exit(40)
