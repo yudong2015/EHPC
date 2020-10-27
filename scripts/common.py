@@ -3,6 +3,7 @@
 import sys
 import time
 import traceback
+import os.path as os_path
 import simplejson as jsmod
 from datetime import datetime
 from subprocess import Popen, PIPE
@@ -16,12 +17,14 @@ from constants import (
     COMPUTE_HOSTNAME_PREFIX,
     ROLE_COMPUTE,
     ACTION_PARAM_CONF,
+    LOG_DEBUG_FLAG,
 )
 
 CMD_CHECK_INTERVAL = 2
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log_level = logging.DEBUG if os_path.exists(LOG_DEBUG_FLAG) else logging.INFO
+logger.setLevel(log_level)
 
 formater = logging.Formatter(
     '[%(asctime)s] - %(levelname)s - %(message)s [%(pathname)s:%(lineno)d]')
