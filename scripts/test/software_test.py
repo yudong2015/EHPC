@@ -2,11 +2,11 @@
 
 import sys
 
-from common import (
+from ehpc.scripts.common import (
     logger,
     ArgsParser,
 )
-from constants import (
+from ehpc.scripts.constants import (
     ACTION_SOFTWARE_INSTALL,
     ACTION_SOFTWARE_UNINSTALL,
     ACTION_RESET_PASSWORD,
