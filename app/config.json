@@ -84,7 +84,8 @@
                 "description": "Number of login nodes for the cluster to create",
                 "type": "integer",
                 "default": 1,
-                "range": [1],
+                "min": 1,
+                "max": 99,
                 "required": "yes"
             }, {
                 "key": "nas_mount_point",
