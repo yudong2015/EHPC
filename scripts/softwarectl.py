@@ -123,8 +123,8 @@ def uninstall(software):
     logger.info("uninstall software[%s]..", software)
     software_home = get_software_home()
     for s in software:
-        if not os.path.exists("{}/{}".format(software_home, s)):
-            logger.error("The software[%s] not exist!", s)
+        if not os.path.exists("{}/{}".format(software_home, s["name"])):
+            logger.error("The software[%s] not exist!", s["name"])
             return 54
 
     for s in software:
