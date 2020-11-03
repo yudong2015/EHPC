@@ -9,7 +9,7 @@
         "container": {
             "type": "kvm",
             "zone": "nscc",
-            "image": "img-6cqldcl3"
+            "image": "img-s17drl1r"
         },
         "net": {
             "vxnet": true,
@@ -23,6 +23,7 @@
         "memory": {{cluster.login.memory}},
         "count": {{cluster.login.count}},
         "user_access": true,
+        "advanced_actions": ["scale_horizontal", "associate_eip"],
         "services": {
             "init": {
                 "cmd": "appctl init"
@@ -46,7 +47,7 @@
         "container": {
             "type": "kvm",
             "zone": "nscc",
-            "image": "img-6cqldcl3"
+            "image": "img-s17drl1r"
         },
         "net": {
             "vxnet": false,
@@ -125,7 +126,7 @@
         "container": {
             "type": "kvm",
             "zone": "nscc",
-            "image": "img-6cqldcl3"
+            "image": "img-s17drl1r"
         },
         "net": {
             "vxnet": false,

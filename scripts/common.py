@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import time
 import traceback
-import os.path as os_path
 import simplejson as jsmod
 from datetime import datetime
 from subprocess import Popen, PIPE
@@ -13,6 +13,7 @@ from logging.handlers import RotatingFileHandler
 from constants import (
     CLUSTER_INFO_FILE,
     BACKUP_DIR,
+    LOG_DIR,
     LOG_FILE,
     COMPUTE_HOSTNAME_PREFIX,
     ROLE_COMPUTE,
@@ -20,10 +21,13 @@ from constants import (
     LOG_DEBUG_FLAG,
 )
 
-CMD_CHECK_INTERVAL = 2
+CMD_CHECK_INTERVAL = 2  # seconds
+
+if not os.path.exists(LOG_DIR):
+    os.system("mkdir -p {}".format(LOG_DIR))
 
 logger = logging.getLogger(__name__)
-log_level = logging.DEBUG if os_path.exists(LOG_DEBUG_FLAG) else logging.INFO
+log_level = logging.DEBUG if os.path.exists(LOG_DEBUG_FLAG) else logging.INFO
 logger.setLevel(log_level)
 
 formater = logging.Formatter(
@@ -108,6 +112,10 @@ def get_cluster_info():
     if not CLUSTER_INFO:
         CLUSTER_INFO = json_load(CLUSTER_INFO_FILE, True)
     return CLUSTER_INFO
+
+
+def get_admin_user():
+    return get_cluster_info()["admin_user"]
 
 
 def get_role():

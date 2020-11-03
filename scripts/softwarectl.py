@@ -8,7 +8,7 @@ from common import (
     logger,
     ArgsParser,
     run_shell,
-    get_cluster_info,
+    get_admin_user,
     json_load,
     json_loads,
 )
@@ -20,7 +20,7 @@ from constants import (
 
 )
 
-SOFTWARE_WORKDIR_FMT = "/home/{}/tmp/software"
+SOFTWARE_WORKDIR_FMT = "/home/{}/tmp/software/{}"
 SOFTWARE_HOME_FMT = "/home/{}/opt"
 
 
@@ -43,16 +43,15 @@ def init_software():
 
 # software format:
 #   [{
-#     "name": xxx,     name must be same as install dir and dir after un-tar
+#     "name": xxx,     software name
 #     "source": xxx,
 #     "installer": xxx, Run: [SOFTWARE_HOME]/[installer]
 #   }]
 def install(software_list, ignore_exist=False):
     logger.info("install software[%s]..", software_list)
-    software_home = get_software_home()
-    workdir = get_software_workdir()
+    software_home = SOFTWARE_HOME_FMT.format(get_admin_user())
     if software_list:
-        run_shell("mkdir -p {}".format(workdir))
+        run_shell("mkdir -p {}".format(software_home))
 
     exist_info = {}
     for s in software_list:
@@ -65,15 +64,21 @@ def install(software_list, ignore_exist=False):
 
     for s in software_list:
         if not exist_info.get(s["name"], False):
-            ret = _install(s["name"], s["source"],
-                           workdir, software_home,
+            ret = _install(s["name"], s["source"], software_home,
                            s.get("installer"))
             if ret is not 0:
                 return ret
     return 0
 
 
-def _install(software, source, workdir, software_home, installer=None):
+def _download(source, workdir):
+    if source.startswith("http"):
+        run_shell("wget -P {} -t 5 -w 60 -c {}".format(workdir, source), timeout=600)
+    else:
+        run_shell("rsync -q -aP {} {}/".format(source, workdir), timeout=600)
+
+
+def _install(software, source, software_home, installer=None):
     """
     :param source: full url to download software, eg: root@xxx/aa/bb/cc.tar.gz
     :param software_home: the home that software would to be installed
@@ -84,29 +89,36 @@ def _install(software, source, workdir, software_home, installer=None):
     logger.info("Do install software[%s] from source[%s]..", software, source)
 
     package = source.split("/")[-1]
+    workdir = SOFTWARE_WORKDIR_FMT.format(get_admin_user(), software)
     package_path = "{}/{}".format(workdir, package)
-    un_tar_dir = "{}/{}".format(workdir, software)
-
-    # format installer
-    if installer:
-        installer = "bash {}".format(installer)
-    else:
-        f = "bash {}/install.sh".format(un_tar_dir)
-        installer = f if os.path.exists(f) else \
-            "mv {} {}/".format(un_tar_dir, software_home)
 
     try:
         # download
-        run_shell("rsync -q -aP {} {}/".format(source, workdir), timeout=600)
+        _download(source, workdir)
+
         # un-tar
-        run_shell("tar -zxf {}".format(package_path), cwd=workdir, timeout=120)
+        run_shell("tar -zxf {}".format(package_path), cwd=workdir, timeout=180)
+
         # install
+        ret = os.listdir(workdir)
+        un_tar_dir = ""
+        for r in ret:
+            if os.path.isdir("{}/{}".format(workdir, r)):
+                un_tar_dir = "{}/{}".format(workdir, r)
+                break
+
+        if installer:
+            installer = "bash {}/{}".format(un_tar_dir, installer)
+        else:
+            f = "bash {}/install.sh".format(un_tar_dir)
+            installer = f if os.path.exists(f) else \
+                "mv {} {}/".format(un_tar_dir, software_home)
+
         run_shell("export SOFTWARE_HOME={} && {}".format(software_home, installer), timeout=120)
+
         # clean
-        if os.path.exists(package_path):
-            run_shell("rm {}".format(package_path))
-        if os.path.exists(un_tar_dir):
-            run_shell("rm -rf {}".format(un_tar_dir))
+        if os.path.exists(workdir):
+            run_shell("rm -rf {}".format(workdir))
     except Exception:
         logger.error("Failed to install software[%s]: \n%s",
                      software, traceback.format_exc())
@@ -121,7 +133,7 @@ def _install(software, source, workdir, software_home, installer=None):
 #   }]
 def uninstall(software):
     logger.info("uninstall software[%s]..", software)
-    software_home = get_software_home()
+    software_home = SOFTWARE_HOME_FMT.format(get_admin_user())
     for s in software:
         if not os.path.exists("{}/{}".format(software_home, s["name"])):
             logger.error("The software[%s] not exist!", s["name"])
@@ -151,16 +163,6 @@ def _uninstall(software, software_home, uninstaller=None):
         logger.error("Error: %s", traceback.format_exc())
         return 1
     return 0
-
-
-def get_software_home():
-    cluster_info = get_cluster_info()
-    return SOFTWARE_HOME_FMT.format(cluster_info["admin_user"])
-
-
-def get_software_workdir():
-    cluster_info = get_cluster_info()
-    return SOFTWARE_WORKDIR_FMT.format(cluster_info["admin_user"])
 
 
 def help():
